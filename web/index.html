@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anemoi</title>
+  <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <script type="text/javascript" src="assets/libs/http_requests.js"></script>
+  
+</head>
+<body>
+  
+   <!-- Top Navigation Bar -->
+   <header>
+	<div class="container">
+	<h1>Anemoi</h1>
+	<nav>
+		<ul>
+		<li class="current"><a href="index.html">Mode</a></li>
+		<li><a href="volume.html">VAC VC</a></li>
+		<li><a href="pressure.html">VAC PC</a></li>
+		</ul>
+	</nav>
+	</div>
+   </header>
+
+  <!-- The Loader -->
+  <div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
+
+  <!-- The Login Form -->
+  <section id="input_form" class="input_form">
+    <div>
+	<h1>Ventilation Mode</h1>
+	<input type="submit" value="VAC VC" onclick="window.location='/volume.html';">
+	<input type="submit" value="VAC PC" onclick="window.location='/pressure.html';">
+    </div> 
+  </section>
+</body>
+</html>
