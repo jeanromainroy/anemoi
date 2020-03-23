@@ -207,6 +207,7 @@ To setup Anemoi you need a couple things:
 
         [Unit]
         Description=Anemoi Daemon
+		After=mysql.service
 
         [Service]
         Type=forking
