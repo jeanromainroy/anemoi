@@ -2,7 +2,7 @@
 class Database{
  
     // Database credentials
-    public $db_name = "anemoi_db";
+    public $db_name = "anemoi";
     private $hostname = "127.0.0.1:3306";
     private $username = "jroy";
     private $password = "31415926";

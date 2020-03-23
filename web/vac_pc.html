@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anemoi</title>
+  <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <script type="text/javascript" src="assets/libs/http_requests.js"></script>
+  
+</head>
+<body>
+
+	<!-- Top Navigation Bar -->
+	<header>
+		<div class="container">
+		<h1>Anemoi</h1>
+		<nav>
+				<ul>
+				<li><a href="index.html">Mode</a></li>
+				<li><a href="vac_vc.html">VAC VC</a></li>
+				<li class="current"><a href="vac_pc.html">VAC PC</a></li>
+				<li><a href="cpap.html">CPAP</a></li>
+				<li><a href="bipap.html">BIPAP</a></li>
+				</ul>
+		</nav>
+		</div>
+	</header>
+
+	<!-- The Loader -->
+	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
+
+	<!-- The Login Form -->
+	<section id="input_form" class="input_form">
+	<div>
+
+	<p>Air Leakage %</p>
+	<p>Flow Graph</p>
+	<p>Volume in lung Graph</p>
+
+
+	<br>
+	<br>
+	<p>Respiratory Rate (Frequency) (Nbr/Min)</p>
+	<input type="text" id="frequency"  name="frequency" maxlength="80" required>
+
+	<p>Inspiratory:Expiratory Time Ratio (%)</p>
+	<input type="text" id="inspiration-time"  name="inspiration-time" maxlength="80" required>
+
+	<br>
+
+	<p>Fraction of Inhaled Oxygen (FiO2)</p>
+	<input type="text" id="frequency"  name="frequency" maxlength="80" required>
+
+	<br>
+
+	<p>Delta Pressure (Pressure) (cm H2O)</p>
+	<input type="text" id="pressure"  name="pressure" maxlength="80" required>
+
+	<p>PEEP (Min Pressure) (cm H2O)</p>
+	<input type="text" id="peep"  name="peep" maxlength="80" required>
+
+	<br>
+
+	<p>Trigger (cm H20)</p>
+	<input type="text" id="email"  name="email" maxlength="80" required>
+
+	<br>
+	<br>
+
+	<input type="submit" value="Update" onclick="login()">
+
+	</div> 
+	</section>
+</body>
+<script>
+
+</script>
+</html>

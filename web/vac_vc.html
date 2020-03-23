@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anemoi</title>
+  <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <script type="text/javascript" src="assets/libs/http_requests.js"></script>
+  
+</head>
+<body>
+
+	<!-- Top Navigation Bar -->
+	<header>
+		<div class="container">
+		<h1>Anemoi</h1>
+		<nav>
+				<ul>
+				<li><a href="index.html">Mode</a></li>
+				<li class="current"><a href="vac_vc.html">VAC VC</a></li>
+				<li><a href="vac_pc.html">VAC PC</a></li>
+				<li><a href="cpap.html">CPAP</a></li>
+				<li><a href="bipap.html">BIPAP</a></li>
+				</ul>
+		</nav>
+		</div>
+	</header>
+
+	<!-- The Loader -->
+	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
+
+	<!-- The Login Form -->
+	<section id="input_form" class="input_form">
+	<div>
+
+	<p>Air Leakage %</p>
+	<p>Flow Graph</p>
+	<p>Volume in lung Graph</p>
+
+
+	<br>
+	<br>
+	<p>Respiratory Rate (Frequency) (Nbr/Min)</p>
+	<input type="text" id="respiration_rate"  name="respiration_rate" maxlength="80" required>
+
+	<p>Inspiratory:Expiratory Time Ratio (insp_time/exp_time)</p>
+		<input type="text" id="inspiration_expiration_ratio"  name="inspiration_expiration_ratio" maxlength="80" required>
+
+	<br>
+
+	<p>Fraction of Inhaled Oxygen (FiO2)</p>
+	<input type="text" id="fio2"  name="fio2" maxlength="80" required>
+
+	<br>
+
+	<p>Tidal Volume (ml)</p>
+	<input type="text" id="tidal_volume"  name="tidal_volume" maxlength="80" required>
+
+	<p>Peak Pressure (Max Pressure) (cm H2O)</p>
+		<input type="text" id="max_pressure"  name="max_pressure" maxlength="80" required>
+
+	<p>PEEP (Min Pressure) (cm H2O)</p>
+	<input type="text" id="peep"  name="peep" maxlength="80" required>
+
+	<br>
+
+	<p>Trigger (cm H20)</p>
+	<input type="text" id="trigger_level"  name="trigger_level" maxlength="80" required>
+
+	<br>
+	<br>
+
+	<input type="submit" value="Update" onclick="update()">
+
+	</div> 
+	</section>
+</body>
+<script>
+
+	request_GET("api/session/read_last.php").then(
+		function(result){
+			console.log(result);
+		},
+		function(error){
+			console.log(error);
+		}
+	);
+
+	function update(){
+
+		// Grab Form Inputs
+		var respiration_rate = document.getElementById("respiration_rate").value;
+		var inspiration_expiration_ratio = document.getElementById("inspiration_expiration_ratio").value;
+		var fio2 = document.getElementById("fio2").value;
+		var tidal_volume = document.getElementById("tidal_volume").value;
+		var max_pressure = document.getElementById("max_pressure").value;
+		var peep = document.getElementById("peep").value;
+		var trigger_level = document.getElementById("trigger_level").value;
+
+		// Build Query
+		var payload = {
+			'vac_vc':1,
+			'respiration_rate': respiration_rate,
+			'inspiration_expiration_ratio': inspiration_expiration_ratio,
+			'fio2': fio2,
+			'tidal_volume': tidal_volume,
+			'max_pressure': max_pressure,
+			'peep': peep,
+			'trigger_level': trigger_level,
+		};
+
+		// Show the spinner
+		document.getElementById("loader").style.display = 'block';
+
+		// Send Request
+		request_POST("api/session/create.php",payload).then(
+			function(result) {
+
+				// Hide the spinner
+				document.getElementById("loader").style.display = 'none';
+			}, 
+			function(error){
+
+				// Hide the spinner
+				document.getElementById("loader").style.display = 'none';
+
+				alert(error.statusText.message);
+			}
+		);
+	}
+
+</script>
+</html>
