@@ -16,7 +16,7 @@ $db = $database->getConnection();
 $session = new Session($db);
 
 // query message
-$stmt = $session->read();
+$stmt = $session->read_last();
 
 // Check if empty
 if(!is_object($stmt)){

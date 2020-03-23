@@ -74,7 +74,7 @@ class Session{
     }
 
     // Read
-    function readLast(){
+    function read_last(){
     
         // Query
         $query = "SELECT * FROM " . $this->table_name . " ORDER BY id DESC LIMIT 1";

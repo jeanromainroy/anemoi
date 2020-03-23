@@ -6,8 +6,8 @@
   <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
   <link rel="stylesheet" href="assets/css/style.css">
 
-  <script type="text/javascript" src="assets/libs/http_requests.js"></script>
-  
+  <script type="text/javascript" src="assets/libs/sweetalert.min.js"></script>
+  <script type="text/javascript" src="assets/libs/http_requests.js"></script>  
 </head>
 <body>
 
@@ -34,9 +34,9 @@
 	<section id="input_form" class="input_form">
 	<div>
 
-	<p>Air Leakage %</p>
+	<!-- <p>Air Leakage %</p>
 	<p>Flow Graph</p>
-	<p>Volume in lung Graph</p>
+	<p>Volume in lung Graph</p> -->
 
 
 	<br>
@@ -45,7 +45,7 @@
 	<input type="text" id="respiration_rate"  name="respiration_rate" maxlength="80" required>
 
 	<p>Inspiratory:Expiratory Time Ratio (insp_time/exp_time)</p>
-		<input type="text" id="inspiration_expiration_ratio"  name="inspiration_expiration_ratio" maxlength="80" required>
+	<input type="text" id="inspiration_expiration_ratio"  name="inspiration_expiration_ratio" maxlength="80" required>
 
 	<br>
 
@@ -58,7 +58,7 @@
 	<input type="text" id="tidal_volume"  name="tidal_volume" maxlength="80" required>
 
 	<p>Peak Pressure (Max Pressure) (cm H2O)</p>
-		<input type="text" id="max_pressure"  name="max_pressure" maxlength="80" required>
+	<input type="text" id="max_pressure"  name="max_pressure" maxlength="80" required>
 
 	<p>PEEP (Min Pressure) (cm H2O)</p>
 	<input type="text" id="peep"  name="peep" maxlength="80" required>
@@ -78,56 +78,139 @@
 </body>
 <script>
 
+	// Show the spinner
+	document.getElementById("loader").style.display = 'block';
+
 	request_GET("api/session/read_last.php").then(
 		function(result){
-			console.log(result);
+			
+			if(result != null && result.length == 1){
+
+				// grab
+				result = result[0];
+
+				// Grab Form Inputs
+				document.getElementById("respiration_rate").value = result["respiration_rate"];
+				document.getElementById("inspiration_expiration_ratio").value = result["inspiration_expiration_ratio"];
+				document.getElementById("fio2").value = result["fio2"];
+				document.getElementById("tidal_volume").value = result["tidal_volume"];
+				document.getElementById("max_pressure").value = result["max_pressure"];
+				document.getElementById("peep").value = result["peep"];
+				document.getElementById("trigger_level").value = result["trigger_level"];
+			}
+
+			// Hide the spinner
+			document.getElementById("loader").style.display = 'none';
+
 		},
 		function(error){
 			console.log(error);
+
+			// Hide the spinner
+			document.getElementById("loader").style.display = 'none';
 		}
 	);
 
+
+	function isNumber(n) { 
+		return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
+	}
+
 	function update(){
 
-		// Grab Form Inputs
-		var respiration_rate = document.getElementById("respiration_rate").value;
-		var inspiration_expiration_ratio = document.getElementById("inspiration_expiration_ratio").value;
-		var fio2 = document.getElementById("fio2").value;
-		var tidal_volume = document.getElementById("tidal_volume").value;
-		var max_pressure = document.getElementById("max_pressure").value;
-		var peep = document.getElementById("peep").value;
-		var trigger_level = document.getElementById("trigger_level").value;
+		swal({
+			icon: "warning",
+			title: "Update Ventilator",
+			text: "Are you sure you want to change the parameters?",
+			buttons: ["Cancel", "Confirm"],
+		})
+		.then(function(result){
+			if(result){
 
-		// Build Query
-		var payload = {
-			'vac_vc':1,
-			'respiration_rate': respiration_rate,
-			'inspiration_expiration_ratio': inspiration_expiration_ratio,
-			'fio2': fio2,
-			'tidal_volume': tidal_volume,
-			'max_pressure': max_pressure,
-			'peep': peep,
-			'trigger_level': trigger_level,
-		};
+				// Grab Form Inputs
+				var respiration_rate = document.getElementById("respiration_rate").value;
+				var inspiration_expiration_ratio = document.getElementById("inspiration_expiration_ratio").value;
+				var fio2 = document.getElementById("fio2").value;
+				var tidal_volume = document.getElementById("tidal_volume").value;
+				var max_pressure = document.getElementById("max_pressure").value;
+				var peep = document.getElementById("peep").value;
+				var trigger_level = document.getElementById("trigger_level").value;
 
-		// Show the spinner
-		document.getElementById("loader").style.display = 'block';
+				if(respiration_rate != null && respiration_rate.length > 0){
+					if(!isNumber(respiration_rate)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(inspiration_expiration_ratio != null && inspiration_expiration_ratio.length > 0){
+					if(!isNumber(inspiration_expiration_ratio)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(fio2 != null && fio2.length > 0){
+					if(!isNumber(fio2)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(tidal_volume != null && tidal_volume.length > 0){
+					if(!isNumber(tidal_volume)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(max_pressure != null && max_pressure.length > 0){
+					if(!isNumber(max_pressure)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(peep != null && peep.length > 0){
+					if(!isNumber(peep)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(trigger_level != null && trigger_level.length > 0){
+					if(!isNumber(trigger_level)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
 
-		// Send Request
-		request_POST("api/session/create.php",payload).then(
-			function(result) {
+				// Build Query
+				var payload = {
+					'vac_vc':1,
+					'respiration_rate': +respiration_rate,
+					'inspiration_expiration_ratio': +inspiration_expiration_ratio,
+					'fio2': +fio2,
+					'tidal_volume': +tidal_volume,
+					'max_pressure': +max_pressure,
+					'peep': +peep,
+					'trigger_level': +trigger_level,
+				};
 
-				// Hide the spinner
-				document.getElementById("loader").style.display = 'none';
-			}, 
-			function(error){
+				// Show the spinner
+				document.getElementById("loader").style.display = 'block';
 
-				// Hide the spinner
-				document.getElementById("loader").style.display = 'none';
+				// Send Request
+				request_POST("api/session/create.php",payload).then(
+					function(result) {
 
-				alert(error.statusText.message);
+						// Hide the spinner
+						document.getElementById("loader").style.display = 'none';
+					}, 
+					function(error){
+
+						// Hide the spinner
+						document.getElementById("loader").style.display = 'none';
+
+						alert(error.statusText.message);
+					}
+				);
 			}
-		);
+		});
 	}
 
 </script>

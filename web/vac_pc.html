@@ -6,8 +6,8 @@
   <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
   <link rel="stylesheet" href="assets/css/style.css">
 
+  <script type="text/javascript" src="assets/libs/sweetalert.min.js"></script>
   <script type="text/javascript" src="assets/libs/http_requests.js"></script>
-  
 </head>
 <body>
 
@@ -34,28 +34,28 @@
 	<section id="input_form" class="input_form">
 	<div>
 
-	<p>Air Leakage %</p>
+	<!-- <p>Air Leakage %</p>
 	<p>Flow Graph</p>
-	<p>Volume in lung Graph</p>
+	<p>Volume in lung Graph</p> -->
 
 
 	<br>
 	<br>
 	<p>Respiratory Rate (Frequency) (Nbr/Min)</p>
-	<input type="text" id="frequency"  name="frequency" maxlength="80" required>
+	<input type="text" id="respiration_rate"  name="respiration_rate" maxlength="80" required>
 
-	<p>Inspiratory:Expiratory Time Ratio (%)</p>
-	<input type="text" id="inspiration-time"  name="inspiration-time" maxlength="80" required>
+	<p>Inspiratory:Expiratory Time Ratio (insp_time/exp_time)</p>
+	<input type="text" id="inspiration_expiration_ratio"  name="inspiration_expiration_ratio" maxlength="80" required>
 
 	<br>
 
 	<p>Fraction of Inhaled Oxygen (FiO2)</p>
-	<input type="text" id="frequency"  name="frequency" maxlength="80" required>
+	<input type="text" id="fio2"  name="fio2" maxlength="80" required>
 
 	<br>
 
 	<p>Delta Pressure (Pressure) (cm H2O)</p>
-	<input type="text" id="pressure"  name="pressure" maxlength="80" required>
+	<input type="text" id="delta_p"  name="delta_p" maxlength="80" required>
 
 	<p>PEEP (Min Pressure) (cm H2O)</p>
 	<input type="text" id="peep"  name="peep" maxlength="80" required>
@@ -63,17 +63,143 @@
 	<br>
 
 	<p>Trigger (cm H20)</p>
-	<input type="text" id="email"  name="email" maxlength="80" required>
+	<input type="text" id="trigger_level"  name="trigger_level" maxlength="80" required>
 
 	<br>
 	<br>
 
-	<input type="submit" value="Update" onclick="login()">
+	<input type="submit" value="Update" onclick="update()">
 
 	</div> 
 	</section>
 </body>
 <script>
+
+	// Show the spinner
+	document.getElementById("loader").style.display = 'block';
+
+	request_GET("api/session/read_last.php").then(
+		function(result){
+			
+			if(result != null && result.length == 1){
+
+				// grab
+				result = result[0];
+
+				// Grab Form Inputs
+				document.getElementById("respiration_rate").value = result["respiration_rate"];
+				document.getElementById("inspiration_expiration_ratio").value = result["inspiration_expiration_ratio"];
+				document.getElementById("fio2").value = result["fio2"];
+				document.getElementById("delta_p").value = result["delta_p"];
+				document.getElementById("peep").value = result["peep"];
+				document.getElementById("trigger_level").value = result["trigger_level"];
+			}
+
+			// Hide the spinner
+			document.getElementById("loader").style.display = 'none';
+
+		},
+		function(error){
+			console.log(error);
+
+			// Hide the spinner
+			document.getElementById("loader").style.display = 'none';
+		}
+	);
+
+
+	function isNumber(n) { 
+		return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
+	}
+
+	function update(){
+
+		swal({
+			icon: "warning",
+			title: "Update Ventilator",
+			text: "Are you sure you want to change the parameters?",
+			buttons: ["Cancel", "Confirm"],
+		})
+		.then(function(result){
+			if(result){
+
+				// Grab Form Inputs
+				var respiration_rate = document.getElementById("respiration_rate").value;
+				var inspiration_expiration_ratio = document.getElementById("inspiration_expiration_ratio").value;
+				var fio2 = document.getElementById("fio2").value;
+				var delta_p = document.getElementById("delta_p").value;
+				var peep = document.getElementById("peep").value;
+				var trigger_level = document.getElementById("trigger_level").value;
+
+				if(respiration_rate != null && respiration_rate.length > 0){
+					if(!isNumber(respiration_rate)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(inspiration_expiration_ratio != null && inspiration_expiration_ratio.length > 0){
+					if(!isNumber(inspiration_expiration_ratio)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(fio2 != null && fio2.length > 0){
+					if(!isNumber(fio2)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(delta_p != null && delta_p.length > 0){
+					if(!isNumber(delta_p)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(peep != null && peep.length > 0){
+					if(!isNumber(peep)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+				if(trigger_level != null && trigger_level.length > 0){
+					if(!isNumber(trigger_level)){
+						alert("Respiration Rate is not a number");
+						return;
+					}
+				}
+
+				// Build Query
+				var payload = {
+					'vac_pc':1,
+					'respiration_rate': +respiration_rate,
+					'inspiration_expiration_ratio': +inspiration_expiration_ratio,
+					'fio2': +fio2,
+					'delta_p': +delta_p,
+					'peep': +peep,
+					'trigger_level': +trigger_level,
+				};
+
+				// Show the spinner
+				document.getElementById("loader").style.display = 'block';
+
+				// Send Request
+				request_POST("api/session/create.php",payload).then(
+					function(result) {
+
+						// Hide the spinner
+						document.getElementById("loader").style.display = 'none';
+					}, 
+					function(error){
+
+						// Hide the spinner
+						document.getElementById("loader").style.display = 'none';
+
+						alert(error.statusText.message);
+					}
+				);
+			}
+		});
+	}
 
 </script>
 </html>
