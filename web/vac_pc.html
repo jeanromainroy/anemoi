@@ -6,6 +6,10 @@
   <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
   <link rel="stylesheet" href="assets/css/style.css">
 
+  <script type="text/javascript" src="assets/libs/d3.js"></script>
+  <script type="text/javascript" src="assets/libs/d3-tip.js"></script>
+  <script type="text/javascript" src="assets/scripts/line_graph/main.js"></script>
+
   <script type="text/javascript" src="assets/libs/sweetalert.min.js"></script>
   <script type="text/javascript" src="assets/libs/http_requests.js"></script>
 </head>
@@ -30,6 +34,8 @@
 	<!-- The Loader -->
 	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
 
+	<div id="dataviz"></div>
+
 	<!-- The Login Form -->
 	<section id="input_form" class="input_form">
 	<div>
@@ -37,7 +43,6 @@
 	<!-- <p>Air Leakage %</p>
 	<p>Flow Graph</p>
 	<p>Volume in lung Graph</p> -->
-
 
 	<br>
 	<br>
@@ -106,6 +111,10 @@
 			document.getElementById("loader").style.display = 'none';
 		}
 	);
+
+
+	// Draw
+	renderTrend("api/pressure/read.php");
 
 
 	function isNumber(n) { 

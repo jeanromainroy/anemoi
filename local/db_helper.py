@@ -102,7 +102,6 @@ class Session:
 			print("ERROR: DB is not connected")
 
 
-
 	def readLast(self):
 
 		if(self.conn.is_connected()):
@@ -154,8 +153,6 @@ class Session:
 		
 		else:
 			print("ERROR: DB is not connected")
-
-
 
 	
 	def create(self, patient_id=None,  vac_pc=None,  vac_vc=None,  cpap=None,  bipap=None,  peep=None,  delta_p=None,  respiration_rate=None,  inspiration_expiration_ratio=None,  fio2=None,  trigger_level=None,  tidal_volume=None,  max_pressure=None):
@@ -250,6 +247,115 @@ class Session:
 				
 			# add where
 			query = query + " WHERE id = '" + str(id) + "'"
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Commit the changes to the DB
+			self.conn.commit()
+
+			# Close cursor
+			cursor.close()
+		
+		else:
+			print("ERROR: DB is not connected")
+
+
+
+class Pressure:
+
+	def __init__(self):
+		self.conn = None
+		self.table_name = "pressure"	
+
+
+	def attach(self):
+		if(self.conn is None):
+			self.conn = getConnection()
+		elif(self.conn.is_connected()):
+			print("INFO: DB already attached")
+		else:
+			self.conn = getConnection()
+
+
+	def detach(self):
+		if(self.conn.is_connected()):
+			self.conn.close()
+		else:
+			print("INFO: DB already detached")
+
+
+	def create(self, value):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "INSERT INTO " + self.table_name + " (value) VALUES (" + str(value) + ")"
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Commit the changes to the DB
+			self.conn.commit()
+
+			# Close cursor
+			cursor.close()
+		
+		else:
+			print("ERROR: DB is not connected")
+
+
+	def read(self):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "SELECT value, created_at FROM " + self.table_name + " ORDER BY created_at ASC"
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Get the returned records
+			records = cursor.fetchall()
+
+			# Go through records
+			results = []
+			for row in records:
+
+				# Split the row
+				value, created_at = row
+
+				# Append to array
+				results.append({
+					"value": value,
+					"created_at": created_at
+				})
+
+			# Close cursor
+			cursor.close()
+
+			# Return results
+			return results
+		
+		else:
+			print("ERROR: DB is not connected")
+
+
+	def delete(self,id):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "DELETE FROM " + self.table_name
 
 			# Execute the query
 			cursor.execute(query)
