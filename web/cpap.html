@@ -42,12 +42,28 @@
 		<br>
 
 		<p>Fraction of Inhaled Oxygen (FiO2)</p>
-		<input type="text" id="fio2"  name="fio2" maxlength="80" required>
+		<div style="display: flex;">
+			<input type="text" id="fio2"  name="fio2" maxlength="80" required>
+			<button class="small_button" id="decrement" title="Decrement" onclick="decrement('fio2',10)">
+				<img alt="Decrement" src="assets/img/minus.svg">
+			</button>
+			<button class="small_button" id="increment" title="Increment" onclick="increment('fio2',10)">
+				<img alt="Increment" src="assets/img/plus.svg">
+			</button>
+		</div>
 	
 		<br>
 
 		<p>PEEP (Min Pressure) (cm H2O)</p>
-		<input type="text" id="peep"  name="peep" maxlength="80" required>
+		<div style="display: flex;">
+			<input type="text" id="peep"  name="peep" maxlength="80" required>
+			<button class="small_button" id="decrement" title="Decrement" onclick="decrement('peep',1)">
+				<img alt="Decrement" src="assets/img/minus.svg">
+			</button>
+			<button class="small_button" id="increment" title="Increment" onclick="increment('peep',1)">
+				<img alt="Increment" src="assets/img/plus.svg">
+			</button>
+		</div>
 	
 		<br>
 		<br>
@@ -91,6 +107,24 @@
 	function isNumber(n) { 
 		return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
 	}
+
+
+	function increment(dom_id, incr_val){
+		if(isNumber(document.getElementById(dom_id).value)){
+			document.getElementById(dom_id).value = +document.getElementById(dom_id).value + incr_val;
+		}else{
+			document.getElementById(dom_id).value = 0;
+		}
+	}
+
+	function decrement(dom_id, decr_val){
+		if(isNumber(document.getElementById(dom_id).value)){
+			document.getElementById(dom_id).value = +document.getElementById(dom_id).value - decr_val;
+		}else{
+			document.getElementById(dom_id).value = 0;
+		}
+	}
+
 
 	function update(){
 

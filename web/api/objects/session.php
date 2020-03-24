@@ -51,11 +51,8 @@ class Session{
                 ((isset($this->tidal_volume) && !empty($this->tidal_volume)) ? $this->tidal_volume : "NULL") . "," . 
                 ((isset($this->max_pressure) && !empty($this->max_pressure)) ? $this->max_pressure : "NULL") . ")";
 
-        echo $query;
-
         // Submit
         $stmt = $this->conn->query($query);
-
     
         return $stmt;
     }

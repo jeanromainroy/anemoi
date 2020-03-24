@@ -42,6 +42,28 @@ h1 {
   100% { transform: rotate(360deg); }
 }
 
+/***** Buttons *****/
+.small_button {
+  width: 42px;
+  height: 42px;
+  margin-left: 8px;
+  margin-top: 8px;
+  padding: 0px;
+  float: right;
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  cursor: pointer;
+  outline: none;
+}
+
+button:hover {
+  background-color: #ccc;
+}
+
+button img {
+  height: 10px;
+}
+
 
 /* Input Forms */
 .input_form {
@@ -64,14 +86,7 @@ h1 {
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
-  box-sizing: border-box;
-}
-
-.input_form input[type=password] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
+  border: 1px solid #d0d0d0;
 }
 
 .input_form input[type=submit] {
@@ -83,7 +98,6 @@ h1 {
   margin: 4px 2px;
   font-size: 16px;
   cursor: pointer;
-  display: inline-block;
   margin-inline-end: 20px;
 }
 
