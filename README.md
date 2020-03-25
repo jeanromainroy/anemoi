@@ -43,7 +43,7 @@ To setup Anemoi you need a couple things:
 
   * All the necessary packages
 	
-		sudo apt-get install git python3-dev
+		sudo apt-get install git python3-dev python3-smbus i2c-tools
 
 	
   * The Python/MySQL connector
@@ -59,6 +59,16 @@ To setup Anemoi you need a couple things:
   * The Anemoi Repo 
 
 		git clone https://github.com/jeanromainroy/anemoi.git
+
+
+  * Sensor Packages
+		
+		sudo pip3 install bmp280
+
+# General config of the rpi
+
+1. Make sure the I2C interface is enabled in raspi-config
+
 
 
 # General Configuration of the server
