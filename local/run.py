@@ -52,12 +52,15 @@ def readPressure():
 	# get pressure value
 	pressure = bmp280.get_pressure()
 
+	# convert pascal to cmh2o
+	pressure = pressure * 1.01974428892
+
 	# fetch DB for last session
 	pressureTable.attach()
 	pressureTable.create(pressure)
 	pressureTable.detach()
 
-	time.sleep(0.01)
+	time.sleep(0.05)
 
 
 def runPump():

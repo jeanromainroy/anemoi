@@ -45,7 +45,7 @@ function renderTrend(endPoint){
 
     // set the labels
     xAxisLabel.text("Time");
-    yAxisLabel.text("Value");
+    yAxisLabel.text("Pressure (cmH2O)");
 
     // -----------------------------------------------------------------------
 	// -------------------------- Scales Domain ------------------------------
@@ -55,7 +55,7 @@ function renderTrend(endPoint){
     var yScale = d3.scaleLinear().range([height, 0]);
 
     xScale.domain([nbrOfPoints,0]);
-    yScale.domain([0, 120]);
+    yScale.domain([900, 1122]);
 
     var xAxis = d3.axisBottom(xScale).ticks(d3.timeMonth.every(1));		
     var yAxis = d3.axisLeft(yScale);
