@@ -5,6 +5,10 @@ import db_helper as db_helper
 import threading
 
 
+# RPI Librairies
+import RPi.GPIO as GPIO
+
+
 # --- Sensors ---
 from bmp280 import BMP280
 try:
@@ -13,16 +17,8 @@ except ImportError:
     from smbus import SMBus
 
 
-# --- RPI ---
-# RPI Librairies
-import RPi.GPIO as GPIO
-
 # set warning 
 GPIO.setwarnings(False)
-
-# RPI Constants
-PUMP_PIN = 18
-
 
 # Initialise the BMP280
 bus = SMBus(1)
@@ -33,6 +29,12 @@ DEFAULT_WAIT_TIME = 5
 DEFAULT_INSPIRATION_TIME = 4
 DEFAULT_EXPIRATION_TIME = 12
 
+# RPI Constants
+PUMP_PIN = 18
+
+# GPIO Setup
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(PUMP_PIN,GPIO.OUT)
 
 # Get instance of the tables
 sessionTable = db_helper.Session()
@@ -108,10 +110,6 @@ def runPump():
 
 
 if __name__ == "__main__":
-
-	# GPIO Setup
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(PUMP_PIN,GPIO.OUT)
 
 	try:
 
