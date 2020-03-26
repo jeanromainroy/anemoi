@@ -1,5 +1,6 @@
 "use strict";
 
+
 function renderTrend(endPoint){
 
     // Get objects
@@ -12,7 +13,27 @@ function renderTrend(endPoint){
     const NBR_OF_POINTS = 100;      // NO MORE THAN 200
 
     // SQL Date Format
-	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
+    var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
+    
+    // Audio
+    var wasAllowed = false;
+    var audio = document.getElementById("myAudio"); 
+    let bt = document.getElementById("bt");
+    bt.addEventListener("click", ()=>{
+        playAudio();
+        pauseAudio();
+        wasAllowed = true;
+    });
+    function playAudio() {
+        if(wasAllowed){
+            audio.play();
+        }
+    }    
+    function pauseAudio() {
+        if(wasAllowed){
+            audio.pause();
+        }
+    } 
 
     // Main Graph
 	var margin = {
@@ -22,7 +43,9 @@ function renderTrend(endPoint){
 		left: 72
 	};
 	var width = 1000 - margin.left - margin.right;
-	var height = 500 - margin.top - margin.bottom;
+    var height = 500 - margin.top - margin.bottom;
+    
+
     
 	// -----------------------------------------------------------------------
 	// ------------------------ Objects Creation -----------------------------
@@ -91,14 +114,14 @@ function renderTrend(endPoint){
             function(data){
                 if(data != null && data.length > 0){
 
-                    var time1 = Date.now();
-
                     // Get the difference between now and the last time measurement
-                    var diffTimeSeconds = (Date.now() - datetimeParser(data[0][1]))/1000;
+                    var diffTimeSeconds = Math.abs(Date.now() - datetimeParser(data[0][1]))/1000;
                     if(diffTimeSeconds > MAX_TIME_DIFF){
                         svg.style("background-color", 'red');
+                        playAudio();
                     }else{
                         svg.style("background-color", 'white');
+                        pauseAudio();
                     }
 
                     // Get Data Min/Max
@@ -132,8 +155,6 @@ function renderTrend(endPoint){
                         .attr("stroke","#3d5c94")
                         .attr("stroke-width","1px");                    
 
-                    
-                    console.log(Date.now()-time1);
                     // Redraw
                     draw();
                 }

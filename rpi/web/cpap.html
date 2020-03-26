@@ -30,16 +30,24 @@
 	<!-- The Loader -->
 	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
 
+	<br>
+	<br>
+	
 	<!-- The Login Form -->
 	<section id="input_form" class="input_form">
 		<div>
+
+		<!-- The Audio Accept -->
+		<p>Audio Alarms</p>
+		<input id="bt" type="submit"  value="Accept">
+		<audio id="myAudio" style="display: none;" preload="auto">
+			<source src="assets/audio/alarm.mp3" type="audio/mpeg">
+		</audio>
 
 		<!-- <p>Air Leakage %</p>
 		<p>Flow Graph</p>
 		<p>Volume in lung Graph</p> -->
 
-		<br>
-		<br>
 
 		<p>Fraction of Inhaled Oxygen (FiO2)</p>
 		<div style="display: flex;">
