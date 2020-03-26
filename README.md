@@ -65,10 +65,10 @@ To setup Anemoi you need a couple things:
 		
 		sudo pip3 install bmp280
 
+
 # General config of the rpi
 
 1. Make sure the I2C interface is enabled in raspi-config
-
 
 
 # General Configuration of the server
@@ -245,3 +245,8 @@ To setup Anemoi you need a couple things:
 
         systemctl status anemoi.service
 
+
+
+# Sensors
+
+The sampling frequency is a big deal for the sensor
