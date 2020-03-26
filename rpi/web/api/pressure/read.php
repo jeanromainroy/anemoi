@@ -8,6 +8,55 @@ header("Content-Type: application/json; charset=UTF-8");
 include_once '../config/database.php';
 include_once '../objects/pressure.php';
 
+// Get the url
+$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 
+                "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  
+                $_SERVER['REQUEST_URI']; 
+
+// Use parse_url() function to parse the URL  
+// and return an associative array which 
+// contains its various components 
+$url_components = parse_url($url); 
+  
+// Use parse_str() function to parse the 
+// string passed via URL 
+parse_str($url_components['query'], $params); 
+
+// Parse
+$nbrOfPoints = htmlspecialchars(strip_tags($params['nbr-points']));
+
+// Check if nbr of points is set
+if(!isset($nbrOfPoints)){
+    
+    // set response code
+    http_response_code(400);
+ 
+    // display message: unable to create user
+    echo json_encode(array("message" => "Unable to read DB. Missing Inputs"));
+
+    die();
+}
+if(empty($nbrOfPoints)){
+
+    // set response code
+    http_response_code(400);
+ 
+    // display message: unable to create user
+    echo json_encode(array("message" => "Unable to read DB. Empty Inputs"));
+
+    die();
+}
+if(!is_numeric($nbrOfPoints)){
+
+    // set response code
+    http_response_code(400);
+ 
+    // display message: unable to create user
+    echo json_encode(array("message" => "Unable to read DB. NaN"));
+
+    die();
+}
+
 // instantiate database
 $database = new Database();
 $db = $database->getConnection();
@@ -16,7 +65,7 @@ $db = $database->getConnection();
 $pressure = new Pressure($db);
 
 // query message
-$stmt = $pressure->read();
+$stmt = $pressure->read($nbrOfPoints);
 
 // Check if empty
 if(!is_object($stmt)){

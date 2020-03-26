@@ -15,10 +15,10 @@ class Pressure{
     }
 
     // Read
-    function read(){
+    function read($nbrOfPoints){
     
         // Query
-        $query = "SELECT value, created_at FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT 100";
+        $query = "SELECT value, created_at FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT " . $nbrOfPoints;
 
         // Submit
         $stmt = $this->conn->query($query);

@@ -2,10 +2,17 @@
 
 function renderTrend(endPoint){
 
-    var nbrOfPoints = 100;
-
     // Get objects
     var datavizBox = d3.select("#dataviz");
+
+    // Max acceptable time difference between UI and sensor measurements (in seconds)
+    const MAX_TIME_DIFF = 5; 
+
+    // Number of points we want to show on the UI (careful if too many points it cant render fast enough)
+    const NBR_OF_POINTS = 100;      // NO MORE THAN 200
+
+    // SQL Date Format
+	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
 
     // Main Graph
 	var margin = {
@@ -78,13 +85,21 @@ function renderTrend(endPoint){
         })
         .curve(d3.curveMonotoneX);
 
-	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
-
     function draw(){
 
-        request_GET(endPoint).then(
+        request_GET(endPoint + "?nbr-points=" + NBR_OF_POINTS).then(
             function(data){
                 if(data != null && data.length > 0){
+
+                    var time1 = Date.now();
+
+                    // Get the difference between now and the last time measurement
+                    var diffTimeSeconds = (Date.now() - datetimeParser(data[0][1]))/1000;
+                    if(diffTimeSeconds > MAX_TIME_DIFF){
+                        svg.style("background-color", 'red');
+                    }else{
+                        svg.style("background-color", 'white');
+                    }
 
                     // Get Data Min/Max
                     var minY = Math.min(...data.map(d => d[0]));
@@ -117,12 +132,15 @@ function renderTrend(endPoint){
                         .attr("stroke","#3d5c94")
                         .attr("stroke-width","1px");                    
 
+                    
+                    console.log(Date.now()-time1);
                     // Redraw
                     draw();
                 }
             },
             function(error){
                 console.log(error);
+                setTimeout(draw, 5000);
             }
         );
     }

@@ -2,17 +2,34 @@
 
 In the context of the COVID-19 pandemic, the global health system is facing a ventilator shortage. This initiative aims at providing a low-cost and open-source hardware & software design made from ubiquitous components. 
 
-
-# Requirements
-
-RPI Model : 3B
-
-OS : Raspbian Buster Lite
-
-Min SD Card : 32 gb
+![Screenshot](schema.jpg)
 
 
-# Mise-en-place
+# Materials
+
+1. Access to 3d printer and PLA filament
+
+2. 5/8 inch vinyl tubing
+
+3. Brass connectors & valves
+
+4. Microcontroller (i.e. arduino) and Raspberry Pi
+
+5. Barometric Pressure (BM280) and Differential (MXP5010) Pressure Sensors
+
+6. >50W Air Pump
+
+
+
+# Sensors
+
+Sampling frequency for all sensors should be between >200ms to prevent performance drops on the UI.
+
+
+
+# Raspberry Pi
+
+## Mise-en-place
 To setup Anemoi you need a couple things:
 
   * Make sure your server is up-to-date
@@ -66,12 +83,7 @@ To setup Anemoi you need a couple things:
 		sudo pip3 install bmp280
 
 
-# General config of the rpi
-
-1. Make sure the I2C interface is enabled in raspi-config
-
-
-# General Configuration of the server
+## General Configuration of the rpi
 
 1. Make sure your hostname is set correctly,
 
@@ -102,8 +114,10 @@ To setup Anemoi you need a couple things:
 		sudo ufw enable
 		sudo ufw status
 
+7. Make sure the I2C interface is enabled in raspi-config
 
-# Configuration of the NGINX web server
+
+## Configuration of the NGINX web server
 
 1. cd into the nginx sites-enabled directory
 
@@ -159,7 +173,7 @@ To setup Anemoi you need a couple things:
 
 
 
-# Creating the database
+## Creating the database
 
 1. Log into the MySQL database server
 
@@ -202,7 +216,7 @@ To setup Anemoi you need a couple things:
         CREATE TABLE pressure (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
 
 
-# Launching a Daemon on startup
+## Launching a Daemon on startup
 
 1. Create a new service
 
@@ -246,7 +260,3 @@ To setup Anemoi you need a couple things:
         systemctl status anemoi.service
 
 
-
-# Sensors
-
-The sampling frequency is a big deal for the sensor
