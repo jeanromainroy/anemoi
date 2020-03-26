@@ -114,7 +114,12 @@ To setup Anemoi you need a couple things:
 		sudo ufw enable
 		sudo ufw status
 
-7. Make sure the I2C interface is enabled in raspi-config
+7. Make sure the I2C interface is enabled 
+
+		https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+
+	
+8. In raspi-config and the timezone is the one you are in
 
 
 ## Configuration of the NGINX web server

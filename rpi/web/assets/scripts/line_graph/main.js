@@ -115,7 +115,7 @@ function renderTrend(endPoint){
                 if(data != null && data.length > 0){
 
                     // Get the difference between now and the last time measurement
-                    var diffTimeSeconds = Math.abs(Date.now() - datetimeParser(data[0][1]))/1000;
+                    var diffTimeSeconds = (Math.abs(Date.now() - datetimeParser(data[0][1]))/1000) % 60;
                     if(diffTimeSeconds > MAX_TIME_DIFF){
                         svg.style("background-color", 'red');
                         playAudio();

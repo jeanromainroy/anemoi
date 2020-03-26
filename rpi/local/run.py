@@ -20,10 +20,6 @@ except ImportError:
 # set warning 
 GPIO.setwarnings(False)
 
-# Initialise the BMP280
-bus = SMBus(1)
-bmp280 = BMP280(i2c_dev=bus)
-
 # Constants
 DEFAULT_WAIT_TIME = 5
 DEFAULT_INSPIRATION_TIME = 4
@@ -40,6 +36,19 @@ GPIO.setup(PUMP_PIN,GPIO.OUT)
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 
+# Initialise the BMP280
+bus = SMBus(1)
+bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
+bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
+failedToConnect = False
+
+def restartPressureSensors():
+
+	# Initialise the BMP280
+	bus = SMBus(1)
+	bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
+	bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
+
 
 def readTemperature():
 
@@ -49,15 +58,31 @@ def readTemperature():
 
 def readPressure():
 
+	# if last cycle was an error
+	if(failedToConnect):
+		restartPressureSensors()
+		failedToConnect = False
+
 	# get pressure value
-	pressure = bmp280.get_pressure()
+	try:
+		pressure_in = bmp280_in.get_pressure()
+		pressure_out = bmp280_out.get_pressure()
+
+	except OSError:
+		print("ERROR: I2C Disconnected")
+		failedToConnect = True
+		time.sleep(5)
+		return
+
+	# get differential
+	pressure_diff = pressure_in - pressure_out
 
 	# convert pascal to cmh2o
-	pressure = pressure * 1.01974428892
+	pressure_cmh2o = pressure_diff * 1.01974428892
 
 	# fetch DB for last session
 	pressureTable.attach()
-	pressureTable.create(pressure)
+	pressureTable.create(pressure_cmh2o)
 	pressureTable.detach()
 
 	time.sleep(0.2)
