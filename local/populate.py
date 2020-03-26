@@ -18,7 +18,7 @@ if __name__ == "__main__":
             randNumb = random.randint(-20,80)
             print(randNumb)
             pressureTable.create(randNumb)
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
 

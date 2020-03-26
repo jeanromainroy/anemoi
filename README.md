@@ -199,7 +199,7 @@ To setup Anemoi you need a couple things:
 
         CREATE TABLE session (id int not null auto_increment, patient_id int, vac_pc tinyint(1) not null, vac_vc tinyint(1) not null, cpap tinyint(1) not null, bipap tinyint(1) not null, peep int not null, delta_p int, respiration_rate int, inspiration_expiration_ratio float, fio2 int, trigger_level float, tidal_volume int, max_pressure int, updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(), created_at TIMESTAMP NOT NULL DEFAULT NOW(), PRIMARY KEY (id));        
 
-        CREATE TABLE pressure (value float not null, created_at TIMESTAMP NOT NULL DEFAULT NOW());
+        CREATE TABLE pressure (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
 
 
 # Launching a Daemon on startup

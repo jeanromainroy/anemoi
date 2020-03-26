@@ -78,7 +78,7 @@ function renderTrend(endPoint){
         })
         .curve(d3.curveMonotoneX);
 
-	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S");
+	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
 
     function draw(){
 
