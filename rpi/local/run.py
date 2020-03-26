@@ -36,133 +36,114 @@ GPIO.setup(PUMP_PIN,GPIO.OUT)
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 
-# Initialise the BMP280
-bus = SMBus(1)
-bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
-bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
-failedToConnect = False
 
-def restartPressureSensors():
+def readPressure():
 
 	# Initialise the BMP280
 	bus = SMBus(1)
 	bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
 	bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
+	failedToConnect = False
 
+	while(True):
 
-def readTemperature():
+		# if last cycle was an error
+		if(failedToConnect):
+			bus = SMBus(1)
+			bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
+			bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
+			failedToConnect = False
 
-	# get temperature value
-	temperature = bmp280.get_temperature()
+		# get pressure value
+		try:
+			pressure_in = bmp280_in.get_pressure()
+			pressure_out = bmp280_out.get_pressure()
 
+		except OSError:
+			print("ERROR: I2C Disconnected")
+			failedToConnect = True
+			time.sleep(5)
+			continue
 
-def readPressure():
+		# get differential
+		pressure_diff = pressure_in - pressure_out
 
-	# if last cycle was an error
-	if(failedToConnect):
-		restartPressureSensors()
-		failedToConnect = False
+		# convert pascal to cmh2o
+		pressure_cmh2o = pressure_diff * 1.01974428892
 
-	# get pressure value
-	try:
-		pressure_in = bmp280_in.get_pressure()
-		pressure_out = bmp280_out.get_pressure()
+		# fetch DB for last session
+		pressureTable.attach()
+		pressureTable.create(pressure_cmh2o)
+		pressureTable.detach()
 
-	except OSError:
-		print("ERROR: I2C Disconnected")
-		failedToConnect = True
-		time.sleep(5)
-		return
-
-	# get differential
-	pressure_diff = pressure_in - pressure_out
-
-	# convert pascal to cmh2o
-	pressure_cmh2o = pressure_diff * 1.01974428892
-
-	# fetch DB for last session
-	pressureTable.attach()
-	pressureTable.create(pressure_cmh2o)
-	pressureTable.detach()
-
-	time.sleep(0.2)
+		time.sleep(0.2)
 
 
 def runPump():
 
-	# init to default values
-	inspiration_time = DEFAULT_INSPIRATION_TIME
-	expiration_time = DEFAULT_EXPIRATION_TIME
-	
-	# fetch DB for last session
-	sessionTable.attach()
-	lastSession = sessionTable.readLast()
-	sessionTable.detach()
+	while(True):
 
-	# if doesnt exist
-	if(lastSession is None or len(lastSession) != 1):
-		print("ERROR: No last session")
-	else:
-
-		# get info
-		lastSession = lastSession[0]
-		respiration_rate = lastSession['respiration_rate']
-		inspiration_expiration_ratio = lastSession['inspiration_expiration_ratio']
-
-		if(respiration_rate is None or inspiration_expiration_ratio is None):
-			print("ERROR: Inspiration/Expiration values are invalid")
-
-		else:
-			# convert to wait times
-			period = 60.0/float(respiration_rate)
-			inspiration_time = period*inspiration_expiration_ratio
-			expiration_time = period*(1.0-inspiration_expiration_ratio)
-
-	# check
-	if(inspiration_time < 0 or expiration_time < 0):
+		# init to default values
 		inspiration_time = DEFAULT_INSPIRATION_TIME
 		expiration_time = DEFAULT_EXPIRATION_TIME
+		
+		# fetch DB for last session
+		sessionTable.attach()
+		lastSession = sessionTable.readLast()
+		sessionTable.detach()
 
-	# Turn PUMP ON
-	GPIO.output(PUMP_PIN,True)
+		# if doesnt exist
+		if(lastSession is None or len(lastSession) != 1):
+			print("ERROR: No last session")
+		else:
 
-	# Wait 1 second
-	time.sleep(inspiration_time)
+			# get info
+			lastSession = lastSession[0]
+			respiration_rate = lastSession['respiration_rate']
+			inspiration_expiration_ratio = lastSession['inspiration_expiration_ratio']
 
-	# Turn PUMP OFF
-	GPIO.output(PUMP_PIN,False)
+			if(respiration_rate is None or inspiration_expiration_ratio is None):
+				print("ERROR: Inspiration/Expiration values are invalid")
 
-	# Wait
-	time.sleep(expiration_time)
+			else:
+				# convert to wait times
+				period = 60.0/float(respiration_rate)
+				inspiration_time = period*inspiration_expiration_ratio
+				expiration_time = period*(1.0-inspiration_expiration_ratio)
+
+		# check
+		if(inspiration_time < 0 or expiration_time < 0):
+			inspiration_time = DEFAULT_INSPIRATION_TIME
+			expiration_time = DEFAULT_EXPIRATION_TIME
+
+		# Turn PUMP ON
+		GPIO.output(PUMP_PIN,True)
+
+		# Wait 1 second
+		time.sleep(inspiration_time)
+
+		# Turn PUMP OFF
+		GPIO.output(PUMP_PIN,False)
+
+		# Wait
+		time.sleep(expiration_time)
 
 
 
 if __name__ == "__main__":
 
 	try:
-
-		def run_readPressure():
-			while(True):
-				# Run
-				readPressure()
-
-
-		def run_runPump():
-			while(True):
-				# Run
-				runPump()
-
-
+		
 		# init
 		threads = []
 
 		# Thread 1
-		p = threading.Thread(target=run_readPressure)
+		p = threading.Thread(target=readPressure)
 		threads.append(p)
 		p.start()
 
 		# Thread 2
-		p = threading.Thread(target=run_runPump)
+		p = threading.Thread(target=runPump)
 		threads.append(p)
 		p.start()
 
