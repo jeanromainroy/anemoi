@@ -43,16 +43,11 @@ def readPressure():
 	bus = SMBus(1)
 	bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
 	bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
-	failedToConnect = False
 
 	while(True):
 
-		# if last cycle was an error
-		if(failedToConnect):
-			bus = SMBus(1)
-			bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
-			bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
-			failedToConnect = False
+		# connect check
+		connectFailed = False
 
 		# get pressure value
 		try:
@@ -61,9 +56,30 @@ def readPressure():
 
 		except OSError:
 			print("ERROR: I2C Disconnected")
-			failedToConnect = True
-			time.sleep(5)
+			connectFailed = True
+
+		except RuntimeError:
+			print("ERROR: I2C Disconnected")
+			connectFailed = True
+
+		# if failed
+		if(connectFailed):
+
+			# wait
+			time.sleep(5)	
+
+			try:
+				# try to reinitialize sensors
+				bus = SMBus(1)
+				bmp280_in = BMP280(i2c_addr=0x76,i2c_dev=bus)
+				bmp280_out = BMP280(i2c_addr=0x77,i2c_dev=bus)
+
+			except:
+				print("ERROR: I2C Disconnected and Failed to reconnect")
+
+			# skip
 			continue
+
 
 		# get differential
 		pressure_diff = pressure_in - pressure_out
