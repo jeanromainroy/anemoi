@@ -1,6 +1,5 @@
 "use strict";
 
-
 function renderTrend(endPoint){
 
     var nbrOfPoints = 100;
@@ -39,7 +38,7 @@ function renderTrend(endPoint){
 
     var yAxisLabel = svg.append("text")
         .attr("class","y-label")
-        .attr("transform", "translate(" + 20 + "," + height/2.0 + ")rotate(-90)")
+        .attr("transform", "translate(" + 20 + "," + (height/2.0 + margin.bottom) + ")rotate(-90)")
         .text("");
 
 
@@ -47,47 +46,65 @@ function renderTrend(endPoint){
     xAxisLabel.text("Time");
     yAxisLabel.text("Pressure (cmH2O)");
 
+
     // -----------------------------------------------------------------------
 	// -------------------------- Scales Domain ------------------------------
-	// -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
 
     var xScale = d3.scaleTime().range([0, width]);
     var yScale = d3.scaleLinear().range([height, 0]);
 
-    xScale.domain([nbrOfPoints,0]);
-    yScale.domain([900, 1122]);
-
-    var xAxis = d3.axisBottom(xScale).ticks(d3.timeMonth.every(1));		
+    var xAxis = d3.axisBottom(xScale);
     var yAxis = d3.axisLeft(yScale);
 
     g.append("g")
+        .attr("class","xaxis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
     g.append("g")
+        .attr("class","yaxis")
         .call(yAxis);
 
     var line = d3.line()
         .defined(function (d) {
             return !isNaN(d[0]);
         })
-        .x(function (d,i) {
-            return xScale(i);
+        .x(function (d) {
+            return xScale(datetimeParser(d[1]));
         })
         .y(function (d) {
             return yScale(d[0]);
         })
         .curve(d3.curveMonotoneX);
 
+	var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
     function draw(){
 
         request_GET(endPoint).then(
             function(data){
                 if(data != null && data.length > 0){
-                        
+
+                    // Get Data Min/Max
+                    var minY = Math.min(...data.map(d => d[0]));
+                    var maxY = Math.max(...data.map(d => d[0]));
+                    var extraY = Math.round((maxY - minY)*0.1);
+
+                    // Update Scales
+                    xScale.domain(d3.extent(data, function (d) {
+                        return datetimeParser(d[1]);
+                    }));
+                    yScale.domain([(minY-extraY),(maxY+extraY)]);
+
+                    // clear
                     g.selectAll("path.dataviz").remove();
 
+                    // update axis
+                    g.select(".xaxis").call(xAxis);
+                    g.select(".yaxis").call(yAxis);
+
+                    // update line
                     var pathsGroup = g.selectAll("path")
                         .data(data)
                         .enter().append("g");
@@ -110,5 +127,6 @@ function renderTrend(endPoint){
         );
     }
 
+    // Launch the Draw function
     draw();
 }

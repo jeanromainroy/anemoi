@@ -15,10 +15,10 @@ if __name__ == "__main__":
         # Loop
         while(True):
             
-            randNumb = random.randint(0,100)
+            randNumb = random.randint(-20,80)
             print(randNumb)
             pressureTable.create(randNumb)
-            time.sleep(0.1)
+            time.sleep(0.5)
 
     except KeyboardInterrupt:
 

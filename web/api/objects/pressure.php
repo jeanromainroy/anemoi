@@ -18,7 +18,7 @@ class Pressure{
     function read(){
     
         // Query
-        $query = "SELECT value FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT 100";
+        $query = "SELECT value, created_at FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT 100";
 
         // Submit
         $stmt = $this->conn->query($query);

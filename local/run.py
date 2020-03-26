@@ -60,7 +60,7 @@ def readPressure():
 	pressureTable.create(pressure)
 	pressureTable.detach()
 
-	time.sleep(0.05)
+	time.sleep(0.2)
 
 
 def runPump():
