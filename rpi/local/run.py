@@ -28,13 +28,25 @@ DEFAULT_EXPIRATION_TIME = 12
 # RPI Constants
 PUMP_PIN = 18
 
+# SPI Port, ADC Flow Center
+PIN_CLK = 18
+PIN_DO  = 27
+PIN_DI  = 22
+PIN_CS  = 26
+
 # GPIO Setup
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PUMP_PIN,GPIO.OUT)
 
+GPIO.setup(PIN_DI,GPIO.OUT)
+GPIO.setup(PIN_DO,GPIO.IN)
+GPIO.setup(PIN_CLK,GPIO.OUT)
+GPIO.setup(PIN_CS,GPIO.OUT)
+
 # Get instance of the tables
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
+flowTable = db_helper.Flow()
 
 
 def readPressure():
@@ -145,6 +157,54 @@ def runPump():
 		time.sleep(expiration_time)
 
 
+def readFlowCenter():
+
+	while(True):
+
+		# get pressure value
+		flow_val = getADC(0)
+		
+		# fetch DB for last session
+		flowTable.attach()
+		flowTable.create(flow_val)
+		flowTable.detach()
+
+		time.sleep(0.1)
+
+
+def getADC(channel):
+
+	# 1. CS LOW.
+	GPIO.output(PIN_CS, True)      # clear last transmission
+	GPIO.output(PIN_CS, False)     # bring CS low
+
+	# 2. Start clock
+	GPIO.output(PIN_CLK, False)  # start clock low
+
+	# 3. Input MUX address
+	for i in [1,1,channel]: # start bit + mux assignment
+		if (i == 1):
+				GPIO.output(PIN_DI, True)
+		else:
+				GPIO.output(PIN_DI, False)
+
+		GPIO.output(PIN_CLK, True)
+		GPIO.output(PIN_CLK, False)
+
+	# 4. read 8 ADC bits
+	ad = 0
+	for i in range(8):
+		GPIO.output(PIN_CLK, True)
+		GPIO.output(PIN_CLK, False)
+		ad <<= 1 # shift bit
+		if (GPIO.input(PIN_DO)):
+				ad |= 0x1 # set first bit
+
+	# 5. reset
+	GPIO.output(PIN_CS, True)
+
+	return ad
+
 
 if __name__ == "__main__":
 
@@ -160,6 +220,11 @@ if __name__ == "__main__":
 
 		# Thread 2
 		p = threading.Thread(target=runPump)
+		threads.append(p)
+		p.start()
+
+		# Thread 3
+		p = threading.Thread(target=readFlowCenter)
 		threads.append(p)
 		p.start()
 

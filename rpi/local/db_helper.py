@@ -368,3 +368,111 @@ class Pressure:
 		
 		else:
 			print("ERROR: DB is not connected")
+
+
+class Flow:
+
+	def __init__(self):
+		self.conn = None
+		self.table_name = "flow"	
+
+
+	def attach(self):
+		if(self.conn is None):
+			self.conn = getConnection()
+		elif(self.conn.is_connected()):
+			print("INFO: DB already attached")
+		else:
+			self.conn = getConnection()
+
+
+	def detach(self):
+		if(self.conn.is_connected()):
+			self.conn.close()
+		else:
+			print("INFO: DB already detached")
+
+
+	def create(self, value):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "INSERT INTO " + self.table_name + " (value) VALUES (" + str(value) + ")"
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Commit the changes to the DB
+			self.conn.commit()
+
+			# Close cursor
+			cursor.close()
+		
+		else:
+			print("ERROR: DB is not connected")
+
+
+	def read(self):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "SELECT value, created_at FROM " + self.table_name + " ORDER BY created_at ASC"
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Get the returned records
+			records = cursor.fetchall()
+
+			# Go through records
+			results = []
+			for row in records:
+
+				# Split the row
+				value, created_at = row
+
+				# Append to array
+				results.append({
+					"value": value,
+					"created_at": created_at
+				})
+
+			# Close cursor
+			cursor.close()
+
+			# Return results
+			return results
+		
+		else:
+			print("ERROR: DB is not connected")
+
+
+	def delete(self,id):
+
+		if(self.conn.is_connected()):
+
+			# init a cursor
+			cursor = self.conn.cursor()
+
+			# build query
+			query = "DELETE FROM " + self.table_name
+
+			# Execute the query
+			cursor.execute(query)
+
+			# Commit the changes to the DB
+			self.conn.commit()
+
+			# Close cursor
+			cursor.close()
+		
+		else:
+			print("ERROR: DB is not connected")
