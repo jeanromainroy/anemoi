@@ -29,10 +29,10 @@ DEFAULT_EXPIRATION_TIME = 12
 PUMP_PIN = 18
 
 # SPI Port, ADC Flow Center
-PIN_CLK = 18
-PIN_DO  = 27
-PIN_DI  = 22
-PIN_CS  = 26
+PIN_CLK = 12
+PIN_DO  = 13
+PIN_DI  = 15
+PIN_CS  = 37
 
 # GPIO Setup
 GPIO.setmode(GPIO.BOARD)
@@ -47,6 +47,9 @@ GPIO.setup(PIN_CS,GPIO.OUT)
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 flowTable = db_helper.Flow()
+
+# Sampling Rate
+SAMPLING_RATE = 0.2
 
 
 def readPressure():
@@ -104,7 +107,7 @@ def readPressure():
 		pressureTable.create(pressure_cmh2o)
 		pressureTable.detach()
 
-		time.sleep(0.2)
+		time.sleep(SAMPLING_RATE)
 
 
 def runPump():
@@ -169,7 +172,7 @@ def readFlowCenter():
 		flowTable.create(flow_val)
 		flowTable.detach()
 
-		time.sleep(0.1)
+		time.sleep(SAMPLING_RATE)
 
 
 def getADC(channel):

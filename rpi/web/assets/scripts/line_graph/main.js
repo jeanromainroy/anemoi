@@ -1,6 +1,6 @@
 "use strict";
 
-function renderTrend(endPoint, DOMid){
+function renderTrend(yLabel, endPoint, DOMid){
 
     // Get objects
     var datavizBox = d3.select(DOMid);
@@ -73,7 +73,7 @@ function renderTrend(endPoint, DOMid){
 
     // set the labels
     xAxisLabel.text("Time");
-    yAxisLabel.text("Pressure (cmH2O)");
+    yAxisLabel.text(yLabel);
 
 
     // -----------------------------------------------------------------------

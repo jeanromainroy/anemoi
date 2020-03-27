@@ -185,8 +185,9 @@
 	);
 
 	// Draw
-	renderTrend("api/flow/read.php", "#dataviz1");
-	renderTrend("api/pressure/read.php", "#dataviz2");
+	renderTrend("Flow (Voltage)", "api/flow/read.php", "#dataviz1");
+	renderTrend("Pressure (cm H2O)", "api/pressure/read.php", "#dataviz2");
+	
 
 	function isNumber(n) { 
 		return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
