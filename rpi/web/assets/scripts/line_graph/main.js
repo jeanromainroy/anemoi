@@ -1,16 +1,16 @@
 "use strict";
 
-
-function renderTrend(endPoint){
+function renderTrend(endPoint, DOMid){
 
     // Get objects
-    var datavizBox = d3.select("#dataviz");
+    var datavizBox = d3.select(DOMid);
 
     // Max acceptable time difference between UI and sensor measurements (in seconds)
     const MAX_TIME_DIFF = 5; 
 
     // Number of points we want to show on the UI (careful if too many points it cant render fast enough)
     const NBR_OF_POINTS = 100;      // NO MORE THAN 200
+    const REFRESH_RATE = 5000;      // in ms
 
     // SQL Date Format
     var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
@@ -33,19 +33,18 @@ function renderTrend(endPoint){
         if(wasAllowed){
             audio.pause();
         }
-    } 
+    }
 
     // Main Graph
 	var margin = {
-		top: 64,
+		top: 32,
 		right: 8,
 		bottom: 72,
 		left: 72
 	};
 	var width = 1000 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
+    var height = 300 - margin.top - margin.bottom;
     
-
     
 	// -----------------------------------------------------------------------
 	// ------------------------ Objects Creation -----------------------------
@@ -80,7 +79,6 @@ function renderTrend(endPoint){
     // -----------------------------------------------------------------------
 	// -------------------------- Scales Domain ------------------------------
     // -----------------------------------------------------------------------
-
     var xScale = d3.scaleTime().range([0, width]);
     var yScale = d3.scaleLinear().range([height, 0]);
 
@@ -156,12 +154,12 @@ function renderTrend(endPoint){
                         .attr("stroke-width","1px");                    
 
                     // Redraw
-                    draw();
+                    setTimeout(draw, REFRESH_RATE);
                 }
             },
             function(error){
                 console.log(error);
-                setTimeout(draw, 5000);
+                setTimeout(draw, REFRESH_RATE);
             }
         );
     }

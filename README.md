@@ -17,7 +17,7 @@ In the context of the COVID-19 pandemic, the global health system is facing a ve
 
 5. Barometric Pressure (BM280) and Differential (MXP5010) Pressure Sensors
 
-6. >50W Air Pump
+6. more than 50W Air Pump
 
 
 
