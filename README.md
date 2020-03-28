@@ -26,6 +26,15 @@ In the context of the COVID-19 pandemic, the global health system is facing a ve
 Sampling frequency for all sensors should be between >200ms to prevent performance drops on the UI.
 
 
+# Arduino 
+
+## Mise-en-place
+
+Install the following librairies and all dependencies
+
+1. Adafruit BMP280 Library (Pressure & Temp Sensor)
+
+
 
 # Raspberry Pi
 

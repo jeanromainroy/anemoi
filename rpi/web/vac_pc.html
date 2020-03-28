@@ -35,10 +35,8 @@
 	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
 
 	<br>
-	<br>
 
-	<div id="dataviz1"></div>
-	<div id="dataviz2"></div>
+	<div id="dataviz"></div>
 
 	<br>
 	<br>
@@ -57,7 +55,6 @@
 	<!-- <p>Air Leakage %</p>
 	<p>Flow Graph</p>
 	<p>Volume in lung Graph</p> -->
-	<br>
 	<p>Respiratory Rate (Frequency) (Nbr/Min)</p>
 	<div style="display: flex;">
 		<input type="text" id="respiration_rate"  name="respiration_rate" maxlength="80" required>
@@ -79,8 +76,6 @@
 			<img alt="Increment" src="assets/img/plus.svg">
 		</button>
 	</div>
-	
-	<br>
 
 	<p>Fraction of Inhaled Oxygen (FiO2)</p>
 	<div style="display: flex;">
@@ -92,8 +87,6 @@
 			<img alt="Increment" src="assets/img/plus.svg">
 		</button>
 	</div>
-
-	<br>
 
 	<p>Delta Pressure (Pressure) (cm H2O)</p>
 	<div style="display: flex;">
@@ -117,8 +110,6 @@
 		</button>
 	</div>
 
-	<br>
-
 	<p>Trigger (cm H20)</p>
 	<div style="display: flex;">
 		<input type="text" id="trigger_level"  name="trigger_level" maxlength="80" required>
@@ -130,7 +121,6 @@
 		</button>
 	</div>
 
-	<br>
 	<br>
 
 	<input type="submit" value="Update" onclick="update()">
@@ -173,8 +163,7 @@
 	);
 
 	// Draw
-	renderTrend("Flow (Voltage)", "api/flow/read.php", "#dataviz1");
-	renderTrend("Pressure (cm H2O)", "api/pressure/read.php", "#dataviz2");
+	renderTrends();
 
 
 	function isNumber(n) { 

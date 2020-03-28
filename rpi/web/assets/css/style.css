@@ -92,6 +92,13 @@ button img {
   overflow: hidden;
 }
 
+.input_form p{
+  margin-bottom: 0px;
+  margin-top: 0px;
+  padding-top: 32px;
+  padding-bottom: 8px;
+}
+
 .input_form input[type=text] {
   width: 100%;
   padding: 12px 20px;
