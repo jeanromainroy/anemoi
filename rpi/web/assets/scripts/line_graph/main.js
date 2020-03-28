@@ -345,46 +345,51 @@ function renderTrends(){
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.round(Math.abs(Date.now() - globalMax_x)/1000);
             if(diffTimeSeconds > MAX_TIME_DIFF){
+
+                // Start Alarms
                 svg.style("background-color", 'red');
                 playAudio();
+
             }else{
+
+                // Stop Alarms
                 svg.style("background-color", 'white');
                 pauseAudio();
-            }
 
-            // Update Scales
-            xScale.domain([globalMin_x,globalMax_x]);
-            yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
-            yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
+                // Update Scales
+                xScale.domain([globalMin_x,globalMax_x]);
+                yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
+                yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
 
-            // clear
-            g.selectAll("path.dataviz").remove();
+                // clear
+                g.selectAll("path.dataviz").remove();
 
-            // update axis
-            g.select(".xaxis").call(xAxis);
-            g.select(".ytopaxis").call(yTopAxis);
-            g.select(".ybottomaxis").call(yBottomAxis);
+                // update axis
+                g.select(".xaxis").call(xAxis);
+                g.select(".ytopaxis").call(yTopAxis);
+                g.select(".ybottomaxis").call(yBottomAxis);
 
-            // update line
-            var pathsGroup = g.selectAll("path")
-                .data(flowData)
-                .enter().append("g");
+                // update line
+                var pathsGroup = g.selectAll("path")
+                    .data(flowData)
+                    .enter().append("g");
 
-            pathsGroup.append("path")
-                .attr("class", "dataviz")
-                .datum(flowData)
-                .attr("d", lineTop)
-                .attr("fill","none")
-                .attr("stroke","#3d5c94")
-                .attr("stroke-width","1px");
-            
-            pathsGroup.append("path")
-                .attr("class", "dataviz")
-                .datum(pressureData)
-                .attr("d", lineBottom)
-                .attr("fill","none")
-                .attr("stroke","#3d5c94")
-                .attr("stroke-width","1px");        
+                pathsGroup.append("path")
+                    .attr("class", "dataviz")
+                    .datum(flowData)
+                    .attr("d", lineTop)
+                    .attr("fill","none")
+                    .attr("stroke","#3d5c94")
+                    .attr("stroke-width","1px");
+                
+                pathsGroup.append("path")
+                    .attr("class", "dataviz")
+                    .datum(pressureData)
+                    .attr("d", lineBottom)
+                    .attr("fill","none")
+                    .attr("stroke","#3d5c94")
+                    .attr("stroke-width","1px");    
+            }                
 
             // Redraw
             setTimeout(draw, REFRESH_RATE);
