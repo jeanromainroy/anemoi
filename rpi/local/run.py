@@ -19,12 +19,22 @@ ser = serial.Serial(
         timeout=1
 	)
 
+# Check if string represents a integer
+def isNumeric(s):
+
+	try: 
+		float(s)
+		return True
+	except ValueError:
+		return False
+
+
 def readSerial():
 
 	while True:
 
 		# read line and decode
-		received = ser.readline().decode('utf-8')
+		received = ser.readline().decode('utf-8').strip()
 
 		# split (key:value)
 		args = received.split(":")
@@ -36,7 +46,7 @@ def readSerial():
 		val = str(args[1]).strip()
 
 		# if val is numeric 
-		if(isinstance(val, (int, float)) and not isinstance(x, bool)):
+		if(isNumeric(val)):
 
 			if(key == "flow1"):
 				val = int(val)
