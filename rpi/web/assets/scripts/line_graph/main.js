@@ -371,7 +371,8 @@ function renderTrends(){
                 // Update Scales
                 xScale.domain([globalMin_x,globalMax_x]);
                 yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
-                yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
+                yBottomScale.domain([0,40]);
+                //yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
 
                 // clear
                 g.selectAll("path.dataviz").remove();

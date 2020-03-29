@@ -1,6 +1,7 @@
 // Libs
-#include <Adafruit_BMP280.h>
+#include <Wire.h>
 #include <EEPROM.h>
+#include "SparkFunBME280.h"
 
 // Allow unsigned char to be written as uchar
 typedef unsigned char uchar;
@@ -11,15 +12,15 @@ int SENSOR_SAMPLE_RATE = 100; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
-Adafruit_BMP280 bmp_in;
-Adafruit_BMP280 bmp_out; 
+BME280 bmp_in; //Uses default I2C address 0x77
+BME280 bmp_out; //Uses I2C address 0x76 (jumper closed)
 
 // The Venturi ADC Pins
 #define ADC_CLK 13
 #define ADC_CS  12
 #define ADC_DI 11
 #define ADC_DO 10
-float VENTURI_A1 = 16;
+float VENTURI_A1 = 15;
 float VENTURI_A2 = 7.5;
 float FLUID_DENSITY = 1.225; // kg/m3
 float VENTURI_CONST = VENTURI_A1*sqrt((2.0/FLUID_DENSITY)*(1.0/(pow((VENTURI_A1/VENTURI_A2),2)-1.0)));
@@ -42,31 +43,20 @@ int DEFAULT_EXPIRATION_TIME = 3;  // in s
 void setup() {
   
   Serial.begin(9600);
-
   Serial.println("Initialization Sequence...");
-  
-  if (!bmp_in.begin(0x76)) {
-    Serial.println(F("Could not find a valid BMP280_1 sensor, check wiring!"));
-    while (1);
+
+  // BMP
+  Wire.begin();
+  bmp_out.setI2CAddress(0x77); //The default for the SparkFun Environmental Combo board is 0x77 (jumper open).
+  if(bmp_out.beginI2C() == false){
+    Serial.println("BMP280 Out connect failed");
+    return;  
   }
-
-  if(!bmp_out.begin(0x77)){
-    Serial.println(F("Could not find a valid BMP280_2 sensor, check wiring!"));
-    while (1);    
+  bmp_in.setI2CAddress(0x76); //Connect to a second sensor
+  if(bmp_in.beginI2C() == false){
+    Serial.println("BMP280 In connect failed");
+    return;  
   }
-
-  /* Default settings from datasheet. */
-  bmp_in.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
-
-  bmp_out.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
   // Set the ADC Pins
   pinMode(ADC_CS, OUTPUT);
@@ -82,6 +72,7 @@ void setup() {
     updateExpirationTime(DEFAULT_EXPIRATION_TIME);
   }
   readPumpParams();
+  digitalWrite(PUMP_OUT, 0);
   Serial.print("inspiration:");
   Serial.println(inspirationTime);
   Serial.print("expiration:");
@@ -142,7 +133,10 @@ int getADC(short channel){
 void readPressure(){
 
   // Get the pressure diff between the two sensors in hPa
-  float pressureDiff = (bmp_in.readPressure() - bmp_out.readPressure())*0.01;
+  float pressure_in = bmp_in.readFloatPressure();
+  float pressure_out = bmp_out.readFloatPressure();
+  
+  float pressureDiff = (pressure_in - pressure_out)*0.01;
 
   // Convert to cm h2o
   pressureDiff = pressureDiff*1.0197;
@@ -155,7 +149,7 @@ void readPressure(){
 void readTemp(){
 
   // Read in *C
-  float temp = bmp_in.readTemperature();
+  float temp = bmp_in.readTempC();
   
   // Print
   Serial.print("temperature:");
@@ -165,13 +159,21 @@ void readTemp(){
 void readFlow(){
 
   // Read differential pressures
-  int diffPressure1 = sensor1_calib_a*getADC(0) - sensor1_calib_b;
-  int diffPressure2 = sensor2_calib_a*getADC(1) - sensor2_calib_b;
+  int diffPressure1 = sensor1_calib_a*getADC(0) - sensor1_calib_b;    // expiration
+  int diffPressure2 = sensor2_calib_a*getADC(1) - sensor2_calib_b;    // inspiration
+
+  // We are going to take the sqrt, make sure its positive
+  if(diffPressure1 < 0){
+    diffPressure1 = 0;
+  }
+  if(diffPressure2 < 0){
+    diffPressure2 = 0;  
+  }
 
   // Convert to Flow with Venturi Equation
   float flow = 0.0;
   if(diffPressure1 > diffPressure2){
-    flow = VENTURI_CONST*sqrt(diffPressure1);
+    flow = -VENTURI_CONST*sqrt(diffPressure1);
   }else{   
     flow = VENTURI_CONST*sqrt(diffPressure2);
   }
@@ -199,11 +201,10 @@ void loop() {
 
   counter += 1;
 
-  if(counter < (expirationTime*1000)/LOOP_DELAY){
-    digitalWrite(PUMP_OUT, 0);
-  }else if(counter >= (expirationTime*1000)/LOOP_DELAY && counter < ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+  if(counter == (expirationTime*1000)/LOOP_DELAY){
     digitalWrite(PUMP_OUT, 1);
-  }else if(counter >= ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+  }else if(counter == ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+    digitalWrite(PUMP_OUT, 0);
     counter = 0;    
   }
   

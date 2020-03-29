@@ -30,8 +30,6 @@ We went with a design with no moving parts that leverages the Venturi effect. Th
 
 Our venturi valve is bidirectional to measure the expiratory and inspiratory flow. STL can be found in anemoi/cad/venturi/. 
 
-A1 = 16mm
-A2 = 7.5mm
 
 
 # Sensors
@@ -45,7 +43,7 @@ Sampling frequency for all sensors should be between >100ms to prevent performan
 
 1. Install the following librairies and all dependencies
 
-		Adafruit BMP280 Library (Pressure & Temp Sensor)
+		Sparkfun BME280 Library
 
 2. Upload the anemoi/arduino/arduino.ino script
 
