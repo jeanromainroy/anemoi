@@ -9,6 +9,9 @@ sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 flowTable = db_helper.Flow()
 
+# Serial Port
+serialPort = "/dev/ttyACM1"
+
 # Check if string represents a integer
 def isNumeric(s):
 
@@ -23,7 +26,7 @@ def readSerial():
 
 	# Setup the serial connection
 	ser = serial.Serial(
-			port='/dev/ttyACM0',
+			port=serialPort,
 			baudrate = 9600,
 			parity=serial.PARITY_NONE,
 			stopbits=serial.STOPBITS_ONE,
@@ -53,7 +56,7 @@ def readSerial():
 			# Setup the serial connection
 			try:
 				ser = serial.Serial(
-						port='/dev/ttyACM0',
+						port=serialPort,
 						baudrate = 9600,
 						parity=serial.PARITY_NONE,
 						stopbits=serial.STOPBITS_ONE,
