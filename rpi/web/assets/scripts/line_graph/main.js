@@ -326,6 +326,18 @@ function renderTrends(){
             var flowData = results[0];
             var pressureData = results[1];
 
+            // check
+            if(flowData == null){
+                flowData = [];
+            }
+            if(pressureData == null){
+                pressureData = [];
+            }
+            if(flowData.length == 0 && pressureData.length == 0){
+                alert("ERROR: There is no data in the DB");
+                return;
+            }
+
             // Get Min/Max
             var flowMax_y = getMax(flowData);
             var flowMax_x = datetimeParser(flowData[0][1]);

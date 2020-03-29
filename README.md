@@ -38,34 +38,122 @@ Install the following librairies and all dependencies
 
 # Raspberry Pi
 
-## Mise-en-place
-To setup Anemoi you need a couple things:
+## Installing Raspbian
 
-  * Make sure your server is up-to-date
+Format SD Card,
+
+1. Open Gparted
+
+2. Select the SD Card drive
+
+3. Delete all partitions
+
+4. Right click and select format fat32
+
+5. Run all operations
+
+To upload image to SD card,
+
+1. Download the latest Raspbian OS (https://www.raspberrypi.org/downloads/raspbian/)
+
+2. Make sure the sha256 matches the name of the file :
+
+		sha256sum filename.zip
+
+3. Unzip the img
+
+4. We write down the name of the sd card by running,
+
+		sudo fdisk -l
+
+5. We unmount the sd card by running :
+
+		sudo umount /dev/sdb1
+
+6. We write the img to the sd card :
+
+		sudo dd bs=4M if=image_name.img of=/dev/sdb conv=fsync
+
+7. Wait for transfer to end
+
+8. Open /boot/ directory
+
+9. Add file named 'ssh' (no extension)
+
+10. Add file named wpa_supplicant.conf
+
+		country=CA # Your 2-digit country code
+		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+		network={
+			ssid="WIFI_NAME"
+			psk="WIFI_PASSWORD"
+			key_mgmt=WPA-PSK
+		}
+
+11. Eject and Put the SD card in the Pi
+
+12. Wait for Pi to boot and ssh using
+
+		ssh pi@'ip'
+
+		password : raspberry
+
+
+## Secure the SSH
+
+In order to ssh without a password, only the ssh-key
+
+1. On the pi, generate new ssh keys pair (press enter for all questions) : ssh-keygen
+
+2. Copy your computer's public id to the .ssh/authorized_keys file of the pi
+	
+		nano ~/.ssh/authorized_keys
+
+
+## LAMP Stack
+
+To deliver the Anemoi web app, you will need to setup your pi as a LAMP server
+
+  * Make sure your pi is up-to-date
 
 		sudo apt-get update
 		sudo apt-get upgrade
 		sudo apt-get autoremove
 
-
-  * A database in a local MySQL server (and the necessary account info and privileges to access it).
+  * A web server
 	
-		sudo apt-get install mysql-server
+		sudo apt-get install apache2 -y
 
-
-  * A web server to serve the static files
+  * A database server
 	
-		sudo apt-get install nginx
-
-
-  * A firewall
-	
-		sudo apt-get install ufw
+		sudo apt-get install mariadb-server -y
 
   * PHP
 		
-		sudo apt-get install php-fpm php-mysql
+		sudo apt-get install php-fpm php-mysql -y
 
+
+## The Firewall
+
+1. Install ufw
+
+		sudo apt-get install ufw
+
+
+2. Setup the firewall
+
+		sudo ufw default allow outgoing
+		sudo ufw default deny incoming
+		sudo ufw allow ssh
+		sudo ufw allow 80
+		sudo ufw allow 443
+		sudo ufw enable
+		sudo ufw status
+
+
+## Mise-en-place
+
+To setup Anemoi you need a couple of additional packages & configurations:
 
   * All the necessary packages
 	
@@ -81,113 +169,34 @@ To setup Anemoi you need a couple things:
 	
 		sudo apt-get install tmux
 
-
-  * The Anemoi Repo 
-
-		git clone https://github.com/jeanromainroy/anemoi.git
-
-
-  * Sensor Packages
+  
+  * Apache Php Interpreter
 		
-		sudo pip3 install bmp280
+		sudo apt-get install php libapache2-mod-php
 
 
-## General Configuration of the rpi
+  * A lib manager
 
-1. Make sure your hostname is set correctly,
-
-		hostnamectl set-hostname --YOUR HOSTNAME--
+		sudo apt-get install python3-pip
 
 
-2. Also add it to hosts file by sudo nano /etc/hosts and adding this under 127.0.0.1 ...
-	
-		--IP-- --YOUR HOSTNAME--
-
-
-3. Copy your ssh public key inside .ssh/authorized_keys/
-
-
-4. Make sure PasswordAuthentication is set to "no" in /etc/ssh/sshd_config
-
-
-5. Restart sudo service sshd restart
-
-
-6. Setup the firewall
-
-		sudo ufw default allow outgoing
-		sudo ufw default deny incoming
-		sudo ufw allow ssh
-		sudo ufw allow 80
-		sudo ufw allow 443
-		sudo ufw enable
-		sudo ufw status
-
-7. Make sure the I2C interface is enabled 
+  * Make sure the I2C & Serial interface is enabled 
 
 		https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
 
 	
-8. In raspi-config and the timezone is the one you are in
+  * In raspi-config and the timezone is the one you are in
 
 
-## Configuration of the NGINX web server
-
-1. cd into the nginx sites-enabled directory
-
-		cd /etc/nginx/sites-enabled
-
-
-2. Remove the default file
-
-		sudo rm default
-
-
-3. Add the following config file by entering the command "sudo nano anemoi" and pasting the following :
-
-
-		server{
-
-			listen 80;
-			listen [::]:80;
-
-			server_name localhost;
-
-			# Root Dir
-			root /var/www/html/;
-
-			# Web App Root Directory Path
-			location / {
-				try_files $uri $uri/ =404;
-			}
-
-			# PHP Config
-			location ~ \.php$ {
-				include snippets/fastcgi-php.conf;
-				fastcgi_pass unix:/run/php/php7.3-fpm.sock;
-			}
-
-			location ~ /\.ht {
-				deny all;
-			}
-		}
-
-
-4. Make sure to edit the server_name value with your hostname
-
-
-5. Test your configuration by typing (If any errors are reported, go back and recheck your file before continuing),
-
-		sudo nginx -t
-
-
-6. Reload NGINX,
-
-		sudo systemctl reload nginx
-
-
+  * Reboot
+  
 
 ## Creating the database
+
+1. Secure MySQL by running
+
+		sudo mysql_secure_installation
+
 
 1. Log into the MySQL database server
 
@@ -196,16 +205,14 @@ To setup Anemoi you need a couple things:
 	
 2. Create the DB that will be used by anemoi
 
-		CREATE DATABASE database_name; 
-		
-		*where database_name is the name you want your database to have*
+		CREATE DATABASE anemoi;
 
 
 3. Create a new user,
 
 		CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
 
-		GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'localhost' WITH GRANT OPTION;
+		GRANT ALL PRIVILEGES ON anemoi.* TO 'username'@'localhost' WITH GRANT OPTION;
 
 		FLUSH PRIVILEGES;
 
@@ -218,7 +225,7 @@ To setup Anemoi you need a couple things:
 
 5. Select your database
 
-		use database_name;
+		use anemoi;
 
 
 6. Create the following tables,	
@@ -231,6 +238,31 @@ To setup Anemoi you need a couple things:
         
 		CREATE TABLE flow (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
 
+
+## Managing your web folder
+
+1. Change the permissions
+
+		sudo chown -R pi:www-data /var/www/html/
+
+		sudo chmod -R 770 /var/www/html/
+
+
+## The Anemoi Source Code
+
+
+1. Clone the Anemoi Repo in /home/
+
+		git clone https://github.com/jeanromainroy/anemoi.git
+
+2. Copy the web files inside your Apache folder
+
+		cp -r ~/anemoi/rpi/web/* /var/www/html/
+
+
+3. Sensor Packages
+		
+		sudo pip3 install bmp280 pyserial
 
 
 ## Launching a Daemon on startup

@@ -7,7 +7,7 @@ typedef unsigned char uchar;
 
 // GENERAL
 int LOOP_DELAY = 10; // in ms
-int SENSOR_SAMPLE_RATE = 200; // in ms
+int SENSOR_SAMPLE_RATE = 100; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
