@@ -279,9 +279,9 @@ To setup Anemoi you need a couple of additional packages & configurations:
         [Service]
         Type=forking
         User=pi
-        ExecStart=/usr/bin/tmux new-session -s anemoi -d 'python3 /home/pi/anemoi/run.py'
+        ExecStart=/usr/bin/tmux new-session -s anemoi -d 'python3 /home/pi/anemoi/rpi/local/run.py'
         ExecStop=/usr/bin/tmux kill-session -t anemoi
-        WorkingDirectory=/home/pi/anemoi/local
+        WorkingDirectory=/home/pi/anemoi/rpi/local/
 
         [Install]
         WantedBy=multi-user.target

@@ -10,7 +10,7 @@ pressureTable = db_helper.Pressure()
 flowTable = db_helper.Flow()
 
 # Serial Port
-serialPort = "/dev/ttyACM1"
+serialPorts = ["/dev/ttyACM0","/dev/ttyACM1"]
 
 # Check if string represents a integer
 def isNumeric(s):
@@ -25,14 +25,19 @@ def isNumeric(s):
 def readSerial():
 
 	# Setup the serial connection
-	ser = serial.Serial(
-			port=serialPort,
-			baudrate = 9600,
-			parity=serial.PARITY_NONE,
-			stopbits=serial.STOPBITS_ONE,
-			bytesize=serial.EIGHTBITS,
-			timeout=1
-		)
+	for port in serialPorts:
+		try:
+			ser = serial.Serial(
+					port=port,
+					baudrate = 9600,
+					parity=serial.PARITY_NONE,
+					stopbits=serial.STOPBITS_ONE,
+					bytesize=serial.EIGHTBITS,
+					timeout=1
+				)
+			break
+		except serial.serialutil.SerialException:
+			pass
 
 	while True:
 
@@ -54,18 +59,19 @@ def readSerial():
 			time.sleep(3)	
 
 			# Setup the serial connection
-			try:
-				ser = serial.Serial(
-						port=serialPort,
-						baudrate = 9600,
-						parity=serial.PARITY_NONE,
-						stopbits=serial.STOPBITS_ONE,
-						bytesize=serial.EIGHTBITS,
-						timeout=1
-					)
-
-			except:
-				print("ERROR: Failed to reconnect")
+			for port in serialPorts:
+				try:
+					ser = serial.Serial(
+							port=port,
+							baudrate = 9600,
+							parity=serial.PARITY_NONE,
+							stopbits=serial.STOPBITS_ONE,
+							bytesize=serial.EIGHTBITS,
+							timeout=1
+						)
+					break
+				except serial.serialutil.SerialException:
+					pass
 
 			# skip
 			continue
@@ -104,40 +110,25 @@ def readSerial():
 
 
 if __name__ == "__main__":
-
-	try:
 		
-		# init
-		threads = []
+	# init
+	threads = []
 
-		# Thread 1
-		p = threading.Thread(target=readSerial)
-		threads.append(p)
-		p.start()
+	# Thread 1
+	p = threading.Thread(target=readSerial)
+	threads.append(p)
+	p.start()
 
-		# # Thread 2
-		# p = threading.Thread(target=runPump)
-		# threads.append(p)
-		# p.start()
+	# # Thread 2
+	# p = threading.Thread(target=runPump)
+	# threads.append(p)
+	# p.start()
 
-		# # Thread 3
-		# p = threading.Thread(target=readFlowCenter)
-		# threads.append(p)
-		# p.start()
+	# # Thread 3
+	# p = threading.Thread(target=readFlowCenter)
+	# threads.append(p)
+	# p.start()
 
-		# Start the Threads
-		for index, thread in enumerate(threads):
-			thread.join()
-
-	
-	except KeyboardInterrupt:
-		print("Keyboard interrupt")
-
-	finally:
-		# Done
-		print("Exiting...")
-
-
-
-
-
+	# Start the Threads
+	for index, thread in enumerate(threads):
+		thread.join()
