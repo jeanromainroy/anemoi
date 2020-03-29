@@ -95,13 +95,7 @@ def readSerial():
 		# if val is numeric 
 		if(isNumeric(val)):
 
-			if(key == "flow1"):
-				val = int(val)
-				flowTable.attach()
-				flowTable.create(val)
-				flowTable.detach()
-
-			elif(key == "flow2"):
+			if(key == "flow"):
 				val = int(val)
 				flowTable.attach()
 				flowTable.create(val)

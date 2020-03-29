@@ -14,11 +14,20 @@ int counter = 0;
 Adafruit_BMP280 bmp_in;
 Adafruit_BMP280 bmp_out; 
 
-// Set the ADC pins
+// The Venturi ADC Pins
 #define ADC_CLK 13
 #define ADC_CS  12
 #define ADC_DI 11
 #define ADC_DO 10
+float VENTURI_A1 = 16;
+float VENTURI_A2 = 7.5;
+float FLUID_DENSITY = 1.225; // kg/m3
+float VENTURI_CONST = VENTURI_A1*sqrt((2.0/FLUID_DENSITY)*(1.0/(pow((VENTURI_A1/VENTURI_A2),2)-1.0)));
+float sensor1_calib_a = 1.0;
+float sensor1_calib_b = 8;
+float sensor2_calib_a = 1.0;
+float sensor2_calib_b = 11;
+
 
 // Pump pins
 #define PUMP_OUT 3
@@ -80,7 +89,7 @@ void setup() {
 }
 
 
-uchar getADC(short channel){
+int getADC(short channel){
   // Chip ADC0832
 
   if(channel != 0 && channel != 1){
@@ -118,8 +127,16 @@ uchar getADC(short channel){
     pinMode(ADC_DO, INPUT);
     dat=dat<<1 | digitalRead(ADC_DO);
   }
-  
-  return dat;  
+
+  // Convert to int
+  int value = 0;
+  for(unsigned int i=0; i<8; i++) {
+    if(bitRead(dat,i) == 1){
+      value += pow(2,i);
+    }    
+  }
+
+  return value;  
 }
 
 void readPressure(){
@@ -147,17 +164,21 @@ void readTemp(){
 
 void readFlow(){
 
-  int flow1 = int(getADC(0));
-  int flow2 = int(getADC(1));
+  // Read differential pressures
+  int diffPressure1 = sensor1_calib_a*getADC(0) - sensor1_calib_b;
+  int diffPressure2 = sensor2_calib_a*getADC(1) - sensor2_calib_b;
 
-  // Print
-  if(flow1 > flow2){
-    Serial.print("flow:");
-    Serial.println(flow1);
-  }else{
-    Serial.print("flow:");
-    Serial.println(flow2);    
+  // Convert to Flow with Venturi Equation
+  float flow = 0.0;
+  if(diffPressure1 > diffPressure2){
+    flow = VENTURI_CONST*sqrt(diffPressure1);
+  }else{   
+    flow = VENTURI_CONST*sqrt(diffPressure2);
   }
+  
+  // Print
+  Serial.print("flow:");
+  Serial.println(flow,2);  
 }
 
 void updateInspirationTime(short inspirTime){

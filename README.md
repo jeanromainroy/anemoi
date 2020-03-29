@@ -30,6 +30,9 @@ We went with a design with no moving parts that leverages the Venturi effect. Th
 
 Our venturi valve is bidirectional to measure the expiratory and inspiratory flow. STL can be found in anemoi/cad/venturi/. 
 
+A1 = 16mm
+A2 = 7.5mm
+
 
 # Sensors
 
