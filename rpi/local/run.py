@@ -9,16 +9,6 @@ sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 flowTable = db_helper.Flow()
 
-# Setup the serial connection
-ser = serial.Serial(
-        port='/dev/ttyACM0',
-        baudrate = 9600,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
-	)
-
 # Check if string represents a integer
 def isNumeric(s):
 
@@ -31,10 +21,53 @@ def isNumeric(s):
 
 def readSerial():
 
+	# Setup the serial connection
+	ser = serial.Serial(
+			port='/dev/ttyACM0',
+			baudrate = 9600,
+			parity=serial.PARITY_NONE,
+			stopbits=serial.STOPBITS_ONE,
+			bytesize=serial.EIGHTBITS,
+			timeout=1
+		)
+
 	while True:
 
-		# read line and decode
-		received = ser.readline().decode('utf-8').strip()
+		# connect check
+		connectFailed = False
+
+		try:
+			# read line and decode
+			received = ser.readline().decode('utf-8').strip()
+
+		except serial.serialutil.SerialException:
+			print("ERROR: Serial Link Disconnected")
+			connectFailed = True
+
+		# if failed
+		if(connectFailed):
+
+			# wait
+			time.sleep(3)	
+
+			# Setup the serial connection
+			try:
+				ser = serial.Serial(
+						port='/dev/ttyACM0',
+						baudrate = 9600,
+						parity=serial.PARITY_NONE,
+						stopbits=serial.STOPBITS_ONE,
+						bytesize=serial.EIGHTBITS,
+						timeout=1
+					)
+
+			except:
+				print("ERROR: Failed to reconnect")
+
+			# skip
+			continue
+
+
 
 		# split (key:value)
 		args = received.split(":")
