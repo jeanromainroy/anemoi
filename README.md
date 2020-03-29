@@ -250,7 +250,6 @@ To setup Anemoi you need a couple of additional packages & configurations:
 
 ## The Anemoi Source Code
 
-
 1. Clone the Anemoi Repo in /home/
 
 		git clone https://github.com/jeanromainroy/anemoi.git
@@ -259,10 +258,9 @@ To setup Anemoi you need a couple of additional packages & configurations:
 
 		cp -r ~/anemoi/rpi/web/* /var/www/html/
 
-
 3. Sensor Packages
 		
-		sudo pip3 install bmp280 pyserial
+		sudo pip3 install pyserial bmp280
 
 
 ## Launching a Daemon on startup
@@ -309,3 +307,12 @@ To setup Anemoi you need a couple of additional packages & configurations:
         systemctl status anemoi.service
 
 
+## Useful commands
+
+1. Check connected I2C addr
+
+		sudo i2cdetect -y 1
+
+2. Check serial devices
+
+		dmesg | grep tty
