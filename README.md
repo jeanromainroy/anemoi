@@ -2,7 +2,7 @@
 
 In the context of the COVID-19 pandemic, the global health system is facing a ventilator shortage. This initiative aims at providing a low-cost and open-source hardware & software design made from ubiquitous components. 
 
-![Screenshot](schema.jpg)
+![Screenshot](imgs/schema.jpg)
 
 
 # Materials
@@ -19,21 +19,32 @@ In the context of the COVID-19 pandemic, the global health system is facing a ve
 
 6. more than 50W Air Pump
 
+# CADs
+
+## Venturi Valve
+
+The tidal volume delivered to the patient is an essential measurement and thus requires a flow meter. This component is placed in series with the patient's air flow. 
+We went with a design with no moving parts that leverages the Venturi effect. The air flows through a constricted section of a pipe. In the direction of the flow, a pressure reading is taken before entering the choke and in the choke. The flow rate can then be obtained with this equation,
+
+![Screenshot](imgs/venturi-schema.jpg)
+
+Our venturi valve is bidirectional to measure the expiratory and inspiratory flow. STL can be found in anemoi/cad/venturi/. 
 
 
 # Sensors
 
-Sampling frequency for all sensors should be between >200ms to prevent performance drops on the UI.
+Sampling frequency for all sensors should be between >100ms to prevent performance drops on the UI.
 
 
 # Arduino 
 
 ## Mise-en-place
 
-Install the following librairies and all dependencies
+1. Install the following librairies and all dependencies
 
-1. Adafruit BMP280 Library (Pressure & Temp Sensor)
+		Adafruit BMP280 Library (Pressure & Temp Sensor)
 
+2. Upload the anemoi/arduino/arduino.ino script
 
 
 # Raspberry Pi
@@ -274,7 +285,7 @@ To setup Anemoi you need a couple of additional packages & configurations:
 
         [Unit]
         Description=Anemoi Daemon
-		After=mysql.service
+		After=mariadb.service
 
         [Service]
         Type=forking

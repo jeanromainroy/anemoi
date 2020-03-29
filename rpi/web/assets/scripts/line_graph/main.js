@@ -357,7 +357,7 @@ function renderTrends(){
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.round(Math.abs(Date.now() - globalMax_x)/1000);
             if(diffTimeSeconds > MAX_TIME_DIFF){
-
+                
                 // Start Alarms
                 svg.style("background-color", 'red');
                 playAudio();

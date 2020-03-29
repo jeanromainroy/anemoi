@@ -52,6 +52,11 @@ def readSerial():
 			print("ERROR: Serial Link Disconnected")
 			connectFailed = True
 
+		except UnicodeDecodeError:
+			print("ERROR: Couldnt read serial output")
+			time.sleep(5)
+			continue
+
 		# if failed
 		if(connectFailed):
 

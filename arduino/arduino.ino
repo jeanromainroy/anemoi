@@ -147,14 +147,17 @@ void readTemp(){
 
 void readFlow(){
 
-  uchar flow1 = getADC(0);
-  uchar flow2 = getADC(1);
-  
+  int flow1 = int(getADC(0));
+  int flow2 = int(getADC(1));
+
   // Print
-  Serial.print("flow1:");
-  Serial.println(flow1);  
-  Serial.print("flow2:");
-  Serial.println(flow2);  
+  if(flow1 > flow2){
+    Serial.print("flow:");
+    Serial.println(flow1);
+  }else{
+    Serial.print("flow:");
+    Serial.println(flow2);    
+  }
 }
 
 void updateInspirationTime(short inspirTime){
