@@ -328,3 +328,20 @@ To setup Anemoi you need a couple of additional packages & configurations:
 2. Check serial devices
 
 		dmesg | grep tty
+
+3. To share your mouse/keyboard with the pi
+
+  * Install on both machine
+
+		sudo apt-get install x2x
+
+  * Configure the SSH on the server
+
+		nano /etc/ssh/sshd_config
+
+		X11Forwarding yes
+
+  * SSH using,
+
+		ssh -X pi@192.168.XXX.XXX 'x2x -east -to :0'
+

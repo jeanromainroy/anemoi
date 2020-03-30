@@ -9,6 +9,16 @@ sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
 flowTable = db_helper.Flow()
 
+# Constants
+DEFAULT_WAIT_TIME = 5
+DEFAULT_INSPIRATION_TIME = 4
+DEFAULT_EXPIRATION_TIME = 12
+
+NEW_INPIRATION_TIME = -1
+NEW_EXPIRATION_TIME = -1
+NEW_SESSION_ID = -1
+
+
 # Serial Port
 serialPorts = ["/dev/ttyACM0","/dev/ttyACM1"]
 
@@ -22,7 +32,7 @@ def isNumeric(s):
 		return False
 
 
-class serialReader:
+class serialWrapper:
 
 	def __init__(self):
 		self.buf = bytearray()
@@ -66,7 +76,7 @@ class serialReader:
 			else:
 				self.buf.extend(data)
 
-	def readLine(self):
+	def safeRead(self):
 
 		try:
 			return self.readBytes().decode('utf-8').strip()
@@ -74,7 +84,7 @@ class serialReader:
 		except serial.serialutil.SerialException:
 			print("ERROR: Serial Linked Broken")
 		
-		except: UnicodeDecodeError:
+		except UnicodeDecodeError:
 			print("ERROR: Invalid byte")
 			time.sleep(1)
 			return None
@@ -89,11 +99,18 @@ class serialReader:
 			else:
 				break
 
+	def write(self, payload):
+		self.s.write(bytes(payload))
 
-def readSerial():
+
+
+def serialProcess():
+	global NEW_INPIRATION_TIME
+	global NEW_EXPIRATION_TIME
+	global NEW_SESSION_ID
 
 	# get an instance of the read class
-	serReader = serialReader()
+	serWrapper = serialWrapper()
 
 	# attach db
 	flowTable.attach()
@@ -102,7 +119,7 @@ def readSerial():
 	while True:
 
 		# read
-		received = serReader.readLine()
+		received = serWrapper.safeRead()
 		if(received is None or len(received) == 0):
 			continue
 
@@ -130,6 +147,66 @@ def readSerial():
 				flowTable.detach()
 				pressureTable.detach()
 
+		# Check if we need to write
+		if(NEW_INPIRATION_TIME > 0):
+			payload = 'inspiration_time:' + str(NEW_INPIRATION_TIME)
+			payload = payload.encode('utf-8')
+			serWrapper.write(payload)
+			NEW_INPIRATION_TIME = -1
+
+		if(NEW_EXPIRATION_TIME > 0):
+			payload = 'expiration_time:' + str(NEW_EXPIRATION_TIME)
+			payload = payload.encode('utf-8')
+			serWrapper.write(payload)
+			NEW_EXPIRATION_TIME = -1
+
+
+
+def readSessions():
+	global NEW_INPIRATION_TIME
+	global NEW_EXPIRATION_TIME
+	global NEW_SESSION_ID
+
+	while(True):
+
+		# init to default values
+		inspiration_time = DEFAULT_INSPIRATION_TIME
+		expiration_time = DEFAULT_EXPIRATION_TIME
+		
+		# fetch DB for last session
+		sessionTable.attach()
+		lastSession = sessionTable.readLast()
+		sessionTable.detach()
+
+		# if doesnt exist
+		if(lastSession is None or len(lastSession) != 1):
+			print("ERROR: No last session")
+		else:
+
+			# get info
+			lastSession = lastSession[0]
+			lastSession_id = lastSession['id']
+			respiration_rate = lastSession['respiration_rate']
+			inspiration_expiration_ratio = lastSession['inspiration_expiration_ratio']
+
+			if(respiration_rate is None or inspiration_expiration_ratio is None):
+				print("ERROR: Inspiration/Expiration values are invalid")
+
+			else:
+				# convert to wait times
+				period = 60.0/float(respiration_rate)
+				inspiration_time = period*inspiration_expiration_ratio
+				expiration_time = period*(1.0-inspiration_expiration_ratio)
+
+				# update
+				if(NEW_SESSION_ID != lastSession_id):
+					NEW_INPIRATION_TIME = inspiration_time
+					NEW_EXPIRATION_TIME = expiration_time
+					NEW_SESSION_ID = lastSession_id
+
+		# sleep
+		time.sleep(DEFAULT_WAIT_TIME)
+
 
 if __name__ == "__main__":
 		
@@ -137,14 +214,14 @@ if __name__ == "__main__":
 	threads = []
 
 	# Thread 1
-	p = threading.Thread(target=readSerial)
+	p = threading.Thread(target=serialProcess)
 	threads.append(p)
 	p.start()
 
-	# # Thread 2
-	# p = threading.Thread(target=runPump)
-	# threads.append(p)
-	# p.start()
+	# Thread 2
+	p = threading.Thread(target=readSessions)
+	threads.append(p)
+	p.start()
 
 	# # Thread 3
 	# p = threading.Thread(target=readFlowCenter)

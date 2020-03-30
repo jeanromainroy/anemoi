@@ -8,7 +8,7 @@ typedef unsigned char uchar;
 
 // GENERAL
 int LOOP_DELAY = 10; // in ms
-int SENSOR_SAMPLE_RATE = 100; // in ms
+int SENSOR_SAMPLE_RATE = 200; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
@@ -185,10 +185,18 @@ void readFlow(){
 
 void updateInspirationTime(short inspirTime){
   EEPROM.write(inspiration_addr, inspirTime);
+  inspirationTime = inspirTime;
+  Serial.print("Updated Inspiration Time to ");
+  Serial.print(inspirationTime);
+  Serial.println("s");
 }
 
 void updateExpirationTime(short expirTime){
-  EEPROM.write(expiration_addr, expirTime);  
+  EEPROM.write(expiration_addr, expirTime);
+  expirationTime = expirTime;
+  Serial.println("Updated Expiration Time to ");
+  Serial.print(expirationTime);
+  Serial.println("s");
 }
 
 void readPumpParams(){
@@ -197,20 +205,87 @@ void readPumpParams(){
 }
 
 
+String splitString(String data, char separator, int index){
+  int found = 0;
+  int strIndex[] = { 0, -1 };
+  int maxIndex = data.length() - 1;
+  
+  for (int i = 0; i <= maxIndex && found <= index; i++) {
+    if (data.charAt(i) == separator || i == maxIndex) {
+      found++;
+      strIndex[0] = strIndex[1] + 1;
+      strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+  return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+
+boolean isValidNumber(String str){
+  boolean isNum=false;
+  for(byte i=0;i<str.length();i++){
+    isNum = isDigit(str.charAt(i)) || str.charAt(i) == '+' || str.charAt(i) == '.' || str.charAt(i) == '-';
+    if(!isNum) return false;
+  }
+  return isNum;
+}
+
 void loop() {
 
+  // Increment Counter
   counter += 1;
 
+  // Run Pump
   if(counter == (expirationTime*1000)/LOOP_DELAY){
     digitalWrite(PUMP_OUT, 1);
   }else if(counter == ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
     digitalWrite(PUMP_OUT, 0);
     counter = 0;    
   }
-  
+
+  // Read Sensors
   if(counter % (SENSOR_SAMPLE_RATE/LOOP_DELAY) == 0){
     readPressure();
     readFlow();
+  }
+
+  // Read Serial
+  while(Serial.available()) {
+    
+    // read the incoming data as string
+    String received = Serial.readString();
+
+    // check
+    if(received == NULL || received.length() == 0){
+      continue;
+    }
+    
+    // Convert to char array
+    String key = splitString(received, ':', 0);
+    String val = splitString(received, ':', 1);
+
+    // check
+    if(key != NULL && val != NULL && key.length() > 0 && val.length() > 0){
+
+      // remove leading & trailing whitespaces
+      key.trim();
+      val.trim();
+
+      // check if val is numeric
+      if(!isValidNumber(val)){
+        continue;
+      }
+
+      // convert to int
+      int intVal = val.toInt();
+      
+      if(key.equals("inspiration_time")){
+        updateInspirationTime(intVal);
+        
+      }else if(key.equals("expiration_time")){
+        updateExpirationTime(intVal);
+      }
+    }
   }
 
   // wait
