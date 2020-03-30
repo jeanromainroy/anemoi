@@ -184,7 +184,7 @@ void readFlow(){
 }
 
 void updateInspirationTime(short inspirTime){
-  EEPROM.write(inspiration_addr, inspirTime);
+  EEPROM.update(inspiration_addr, inspirTime);
   inspirationTime = inspirTime;
   Serial.print("Updated Inspiration Time to ");
   Serial.print(inspirationTime);
@@ -192,7 +192,7 @@ void updateInspirationTime(short inspirTime){
 }
 
 void updateExpirationTime(short expirTime){
-  EEPROM.write(expiration_addr, expirTime);
+  EEPROM.update(expiration_addr, expirTime);
   expirationTime = expirTime;
   Serial.println("Updated Expiration Time to ");
   Serial.print(expirationTime);

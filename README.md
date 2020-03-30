@@ -274,6 +274,13 @@ To setup Anemoi you need a couple of additional packages & configurations:
 		
 		sudo pip3 install pyserial bmp280
 
+4. Set your DB credentials in,
+
+		anemoi/rpi/local/db_helper.py
+
+		anemoi/rpi/web/api/config/database.php
+
+
 
 ## Launching a Daemon on startup
 

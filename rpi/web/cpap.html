@@ -30,26 +30,16 @@
 	<!-- The Loader -->
 	<div id="loader" class="loader" style="position: absolute;left: 45%;top: 45%;"></div> 
 
-	<br>
-	<br>
-	
-	<!-- The Login Form -->
-	<section id="input_form" class="input_form">
+
+
+	<!-- Side Panel -->
+	<aside id="side-panel">
+		
+		<!-- The Login Form -->
+		<section id="input_form" class="input_form">
 		<div>
-
-		<!-- The Audio Accept -->
-		<p>Audio Alarms</p>
-		<input id="bt" type="submit"  value="Accept">
-		<audio id="myAudio" style="display: none;" preload="auto">
-			<source src="assets/audio/alarm.mp3" type="audio/mpeg">
-		</audio>
-
-		<!-- <p>Air Leakage %</p>
-		<p>Flow Graph</p>
-		<p>Volume in lung Graph</p> -->
-
-
-		<p>Fraction of Inhaled Oxygen (FiO2)</p>
+			
+		<h1>Fraction of Inhaled Oxygen (FiO2)</h1>
 		<div style="display: flex;">
 			<input type="text" id="fio2"  name="fio2" maxlength="80" required>
 			<button class="small_button" id="decrement" title="Decrement" onclick="decrement('fio2',10)">
@@ -62,7 +52,7 @@
 	
 		<br>
 
-		<p>PEEP (Min Pressure) (cm H2O)</p>
+		<h1>PEEP (Min Pressure) (cm H2O)</h1>
 		<div style="display: flex;">
 			<input type="text" id="peep"  name="peep" maxlength="80" required>
 			<button class="small_button" id="decrement" title="Decrement" onclick="decrement('peep',1)">
@@ -74,12 +64,26 @@
 		</div>
 	
 		<br>
-		<br>
-
+	
 		<input type="submit" value="Update" onclick="update()">
 
+		<!-- The Audio Accept -->
+		<input id="bt" type="submit" value="Audio Alarms" style="background-color:#aaa">
+		<audio id="myAudio" style="display: none;" preload="auto">
+			<source src="assets/audio/alarm.mp3" type="audio/mpeg">
+		</audio>
+	
 		</div> 
-	</section>
+		</section>
+	</aside>
+
+
+	<!-- Main Dataviz Panel -->
+	<aside id="main-panel">
+		<div id="dataviz"></div>
+	</aside>
+
+
 </body>
 <script>
 

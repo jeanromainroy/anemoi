@@ -54,7 +54,7 @@ h1 {
 
 /***** Buttons *****/
 .small_button {
-  width: 42px;
+  width: 58px;
   height: 42px;
   margin-left: 8px;
   margin-top: 8px;
@@ -73,51 +73,6 @@ button:hover {
 button img {
   height: 10px;
 }
-
-
-/* Input Forms */
-.input_form {
-  text-align: left;
-  color: #000000;
-  margin-left: 64px;
-  margin-bottom: 64px;
-  margin-right: 64px;
-}
-
-.input_form h1{
-  font-size: 30px;
-}
-
-.input_form div{
-  overflow: hidden;
-}
-
-.input_form p{
-  margin-bottom: 0px;
-  margin-top: 0px;
-  padding-top: 32px;
-  padding-bottom: 8px;
-}
-
-.input_form input[type=text] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  border: 1px solid #d0d0d0;
-}
-
-.input_form input[type=submit] {
-  background-color: #3d5c94;
-  border: none;
-  color: white;
-  padding: 16px 32px;
-  text-decoration: none;
-  margin: 4px 2px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-inline-end: 20px;
-}
-
 
 
 /* Header */
@@ -163,3 +118,79 @@ header a:hover{
   color: #fff;
   font-weight: bold;
 }
+
+
+/***** Side Panel *****/
+#side-panel {
+  position: absolute;
+  top: 32px;
+  left: 0px;
+  bottom: 0px;
+  width: 400px;
+  padding: 32px;
+  z-index: -1;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background-color: #fff;
+}
+
+
+/***** Main Panel *****/
+#main-panel {
+  position: absolute;
+  top: 32px;
+  left: 464px;
+  right: 0px;
+  bottom: 0px;
+  padding: 32px;
+  z-index: -1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background-color: #fff;
+}
+
+/* Input Forms */
+.input_form {
+  text-align: left;
+  color: #000000;
+  margin: 0px;
+  padding: 0px;
+}
+
+.input_form h1{
+  font-size: 18px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  padding-top: 32px;
+  padding-bottom: 8px;
+}
+
+.input_form div{
+  overflow: hidden;
+}
+
+
+.input_form input[type=text] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  border: 1px solid #d0d0d0;
+}
+
+.input_form input[type=submit] {
+  background-color: #3d5c94;
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-decoration: none;
+  margin: 4px 2px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-inline-end: 20px;
+}
+
+
