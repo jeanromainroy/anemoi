@@ -253,12 +253,16 @@ void loop() {
   while(Serial.available()) {
     
     // read the incoming data as string
-    String received = Serial.readString();
+    String received = Serial.readStringUntil(';');
 
     // check
     if(received == NULL || received.length() == 0){
       continue;
     }
+
+    // prompt master
+    Serial.print("Arduino received : ");
+    Serial.println(received);
     
     // Convert to char array
     String key = splitString(received, ':', 0);

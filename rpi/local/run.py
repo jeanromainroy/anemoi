@@ -78,16 +78,17 @@ class serialWrapper:
 
 	def safeRead(self):
 
-		try:
-			return self.readBytes().decode('utf-8').strip()
+		if(self.s is not None):
+			try:
+				return self.readBytes().decode('utf-8').strip()
 
-		except serial.serialutil.SerialException:
-			print("ERROR: Serial Linked Broken")
-		
-		except UnicodeDecodeError:
-			print("ERROR: Invalid byte")
-			time.sleep(1)
-			return None
+			except serial.serialutil.SerialException:
+				print("ERROR: Serial Linked Broken")
+			
+			except UnicodeDecodeError:
+				print("ERROR: Invalid byte")
+				time.sleep(1)
+				return None
 
 		while(True):
 
@@ -126,6 +127,7 @@ def serialProcess():
 		# split (key:value)
 		args = received.split(":")
 		if(len(args) != 2):
+			print("INFO: received (" + str(received) + ")")
 			continue
 
 		# get args
@@ -149,13 +151,13 @@ def serialProcess():
 
 		# Check if we need to write
 		if(NEW_INPIRATION_TIME > 0):
-			payload = 'inspiration_time:' + str(NEW_INPIRATION_TIME)
+			payload = 'inspiration_time:' + str(NEW_INPIRATION_TIME) + ";"
 			payload = payload.encode('utf-8')
 			serWrapper.write(payload)
 			NEW_INPIRATION_TIME = -1
 
 		if(NEW_EXPIRATION_TIME > 0):
-			payload = 'expiration_time:' + str(NEW_EXPIRATION_TIME)
+			payload = 'expiration_time:' + str(NEW_EXPIRATION_TIME) + ";"
 			payload = payload.encode('utf-8')
 			serWrapper.write(payload)
 			NEW_EXPIRATION_TIME = -1
