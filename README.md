@@ -2,7 +2,7 @@
 
 In the context of the COVID-19 pandemic, the global health system is facing a ventilator shortage. This initiative aims at providing a low-cost and open-source hardware & software design made from ubiquitous components. 
 
-![Screenshot](imgs/schema.jpg)
+![Screenshot](imgs/schema.png)
 
 
 # Materials
