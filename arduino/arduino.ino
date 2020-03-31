@@ -79,6 +79,16 @@ void setup() {
   Serial.println(inspirationTime);
   Serial.print("expiration:");
   Serial.println(expirationTime);
+
+  // Static Pressure Difference 
+  delay(2000);
+  float pressureAverage = 0.0;
+  for(int i = 0; i<20; i++){
+    pressureAverage += float(readPressure());  
+    delay(50);
+  }
+  pressure_calib_b = -(float(pressureAverage)/20.0);
+  
 }
 
 
@@ -133,7 +143,7 @@ int getADC(short channel){
 }
 
 
-void readPressure(){
+float readPressure(){
 
   // Get the pressure diff between the two sensors in hPa
   float pressure_in = bmp_in.readFloatPressure();
@@ -147,9 +157,8 @@ void readPressure(){
   // Use calibration
   pressureDiff = pressure_calib_a*pressureDiff + pressure_calib_b;
 
-  // Print
-  Serial.print("pressure:");
-  Serial.println(pressureDiff, 2);  // 2 decimals
+  // print
+  return pressureDiff;
 }
 
 void readTemp(){
@@ -195,30 +204,29 @@ float readFlow(){
   return flow;
 }
 
-void readVolume(){
+float readVolume(){
 
   // read flow
   float flowVal = float(readFlow());
 
-  if(flowVal <= zeroRadius && flowVal >= -zeroRadius){
-    // if the flow value is approx 0
-    zeroCount += 1;
-  }else{
-    // if we have a value
-    zeroCount = 0;  
+  // check if we need to reset the volume
+  if(zeroCount > zeroTrigger || flowVal < 0.0){
+    volume = 0;
+    zeroCount = 0;
   }
 
-  if(zeroCount > zeroTrigger){
-    volume = 0;
+  if(flowVal <= zeroRadius && flowVal >= -zeroRadius){
+    // if the flow value is approx 0
+    zeroCount += 1; 
+  }else{
+    // if we have a value
     zeroCount = 0;  
   }
 
   // accumulate
   volume += flowVal*(float(SENSOR_SAMPLE_RATE)/1000.0);
 
-  // Print
-  Serial.print("volume:");
-  Serial.println(volume,2);     
+  return volume;   
 }
 
 void updateInspirationTime(short inspirTime){
@@ -283,8 +291,15 @@ void loop() {
 
   // Read Sensors
   if(counter % (SENSOR_SAMPLE_RATE/LOOP_DELAY) == 0){
-    readPressure();
-    readVolume();
+
+    float pressureVal = float(readPressure());
+    Serial.print("pressure:");
+    Serial.println(pressureVal, 2);  // 2 decimals
+
+    // Print
+    float volumeVal = float(readVolume());
+    Serial.print("volume:");
+    Serial.println(volumeVal,2);  
   }
 
   // Read Serial

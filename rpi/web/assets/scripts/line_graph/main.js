@@ -169,19 +169,19 @@ function renderTrends(){
 
             // // Get Min/Max
             // var flowMax_y = getMax(flowData);
-            // var flowMax_x = datetimeParser(flowData[0][1]);
+            var flowMax_x = datetimeParser(flowData[0][1]);
             // var flowMin_y = getMin(flowData);
-            // var flowMin_x = datetimeParser(flowData[flowData.length-1][1]);
+            var flowMin_x = datetimeParser(flowData[flowData.length-1][1]);
             // var flowExtraY = Math.round((flowMax_y - flowMin_y)*0.1);
 
             // var pressureMax_y = getMax(pressureData);
-            // var pressureMax_x = datetimeParser(pressureData[0][1]);
+            var pressureMax_x = datetimeParser(pressureData[0][1]);
             // var pressureMin_y = getMin(pressureData);
-            // var pressureMin_x = datetimeParser(pressureData[pressureData.length-1][1]);
+            var pressureMin_x = datetimeParser(pressureData[pressureData.length-1][1]);
             // var pressureExtraY = Math.round((pressureMax_y - pressureMin_y)*0.1);
 
-            // var globalMax_x = Math.min(...[pressureMax_x,flowMax_x]);
-            // var globalMin_x = Math.min(...[pressureMin_x,flowMin_x]);
+            var globalMax_x = Math.min(...[pressureMax_x,flowMax_x]);
+            var globalMin_x = Math.min(...[pressureMin_x,flowMin_x]);
 
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.round(Math.abs(Date.now() - globalMax_x)/1000);
@@ -199,9 +199,9 @@ function renderTrends(){
 
                 // Update Scales
                 xScale.domain([globalMin_x,globalMax_x]);
-                //yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
                 yTopScale.domain([0, 1500]);
                 yBottomScale.domain([0,40]);
+                //yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
                 //yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
 
                 // clear
