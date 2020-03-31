@@ -251,9 +251,9 @@ void loop() {
 
   // Run Pump
   if(counter == (expirationTime*1000)/LOOP_DELAY){
-    digitalWrite(PUMP_OUT, 1);
-  }else if(counter == ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
     digitalWrite(PUMP_OUT, 0);
+  }else if(counter == ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+    digitalWrite(PUMP_OUT, 1);
     counter = 0;    
   }
 

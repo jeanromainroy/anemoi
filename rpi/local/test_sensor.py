@@ -88,7 +88,7 @@ class serialWrapper:
 
 
 
-def readSensor(sensorID):
+def readSensor(sensorID, offset):
 
     # get an instance of the read class
     serWrapper = serialWrapper()
@@ -96,6 +96,7 @@ def readSensor(sensorID):
     # init vars
     flowTotal = 0.0
     zeroCount = 0
+    samplingTime = 0.05
 
     while True:
 
@@ -117,11 +118,14 @@ def readSensor(sensorID):
         # if val is numeric 
         if(isNumeric(val)):
 
-            # convert to float
-            val = float(val)
-
             if(key == "flow_expi" and sensorID == 1):
-                flowTotal += val*0.05
+
+                # convert to float
+                val = float(val) + offset
+                if(val <= 1 and val >= -1):
+                    val = 0
+
+                flowTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
@@ -134,7 +138,13 @@ def readSensor(sensorID):
                 print("Flow Inspi (L/min) = " + str(val) + ", total = " + str(flowTotal))
 
             elif(key == "flow_inspi" and sensorID == 2):
-                flowTotal += val*0.05
+                
+                # convert to float
+                val = float(val) + offset
+                if(val <= 1 and val >= -1):
+                    val = 0
+                    
+                flowTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
@@ -148,7 +158,13 @@ def readSensor(sensorID):
 
 
             elif(key == "flow" and sensorID == 3):
-                flowTotal += val*0.05
+                
+                # convert to float
+                val = float(val) + offset
+                if(val <= 1 and val >= -1):
+                    val = 0
+
+                flowTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
@@ -161,7 +177,16 @@ def readSensor(sensorID):
                 print("Flow (L/min) = " + str(val) + ", total = " + str(flowTotal))
 
 
-            elif(key == "pressure" and sensorID == 4):
+            elif(key == "pressure"):
+                
+                # convert to float
+                val = float(val)
+                if(sensorID == 4):
+                    val = val + offset
+
+                if(val <= 1 and val >= -1):
+                    val = 0
+
                 print("Pressure (cmH2O) = " + str(val))
             
 
@@ -172,6 +197,7 @@ if __name__ == "__main__":
 
     # Arguments
     parser.add_argument("sensorID",help="1: Flow, 2: Pressure")
+    parser.add_argument("offset", help="y = ax+b, this is the b")
     args = parser.parse_args()
 
     # Check if source path exists
@@ -181,9 +207,11 @@ if __name__ == "__main__":
 
     # get id
     sensorID = int(args.sensorID)
-    if(sensorID > 2):
+    if(sensorID > 4):
         print("ERROR: Not an option")
         assert ValueError
 
-	# init
-    readSensor(sensorID)
+        # init
+    readSensor(sensorID, float(args.offset))
+
+

@@ -24,6 +24,13 @@ In the context of the COVID-19 pandemic, the global health system is facing a ve
 
 # CADs
 
+## Turbine Pump Design
+
+Link to calculator,
+
+		https://inventory.powerzone.com/resources/centrifugal-pump-power-calculator/
+
+
 ## Venturi Valve
 
 The tidal volume delivered to the patient is an essential measurement and thus requires a flow meter. This component is placed in series with the patient's air flow. 
@@ -44,29 +51,68 @@ Sampling frequency for all sensors should be >100ms to prevent performance drops
 We connected the water column and the sensor in parallel and we applied a constant pressure. 
 
 
-![Screenshot](imgs/pressure_calib.png)
+![Screenshot](imgs/pressure_calib_img.png)
 
 
 We read the values coming from the sensor using the test_sensor.py script. Here are our results,
 
-		Sensor  | Water Column (cmH2O)
-		------------------------------
-			8   |    10
-			18  |    20
-			25  |    30
-			30  |    40
+		Water Column (cmH2O)  |  Sensor Reading
+		----------------------------------------
+						10    |    8
+						20    |    18
+						30    |    25
+						40    |    30
 
 
-We find the linear regression to find the calibration coffeciants (true_val = c1*sensor_val + c2), 
+We find the linear regression to find the calibration coffeciants (true_val = c1*sensor_val + static diff between sensors), 
 
 		c1 = 1.34
-		c2 = static diff between sensors = -2.1
+		c2 = measured when the machine boots up
+
 
 
 ## Flow Calibration
 
-For the flow we use Archimede's Principle stating that if a body is completely submerged the volume of fluid displaced is equal to the volume of the body. 
-We inflate a submerged balloon placed in a graduated cylinder. 
+For the flow we use Archimede's Principle stating that if a body is completely submerged the volume of fluid displaced is equal to the volume of the body. We fill a inverted graduated cylinder with water and we place it into a water bucket. We insert the 5/8 tube at the very top of the cylindar (to prevent bubble creation pressure transients).
+We integrate the flow sensor reading with the sampling time to get the volume measured and we compare it to the actual volume. The equation relating the flow to the pressure in a venturi valve is squared root. 
+
+
+![Screenshot](imgs/flow_sensor_img.jpg)
+
+Here are our results,
+
+		Displaced Volume (mL)  |  Square Root of Flow Sensor Rieman Sum
+		-------------------------------------------------------------------------------------
+						600   |   1.67
+						600   |   1.63
+						1000   |   2.26
+						700   |   1.53
+						1000   |   2.26
+						900   |   2.32
+						650   |   1.53
+						1750   |   2.64
+						1500   |   3.1
+						1200   |   2.31
+						1750   |   2.51
+						700   |   1.83
+						1700   |   2.62
+						1500   |   2.36
+						1800   |   3.31
+						450   |   1.12
+						1450   |   2.93
+						600   |   1.26
+						1000   |   2.28
+						450   |   1.16
+						700   |   1.64
+						650   |   1.61
+						650   |   1.22
+						650   |   1.4
+						600   |   1.2
+						1000   |   1.55
+						800   |   1.52
+
+
+![Screenshot](imgs/flow_sensor_graph.png)
 
 
 # Arduino 
