@@ -8,12 +8,14 @@ typedef unsigned char uchar;
 
 // GENERAL
 int LOOP_DELAY = 10; // in ms
-int SENSOR_SAMPLE_RATE = 200; // in ms
+int SENSOR_SAMPLE_RATE = 50; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
 BME280 bmp_in; //Uses default I2C address 0x77
 BME280 bmp_out; //Uses I2C address 0x76 (jumper closed)
+float pressure_calib_a = 1.34;
+float pressure_calib_b = 0.0;
 
 // The Venturi ADC Pins
 #define ADC_CLK 13
@@ -130,6 +132,7 @@ int getADC(short channel){
   return value;  
 }
 
+
 void readPressure(){
 
   // Get the pressure diff between the two sensors in hPa
@@ -140,6 +143,9 @@ void readPressure(){
 
   // Convert to cm h2o
   pressureDiff = pressureDiff*1.0197;
+
+  // Use calibration
+  pressureDiff = pressure_calib_a*pressureDiff + pressure_calib_b;
 
   // Print
   Serial.print("pressure:");
@@ -159,26 +165,34 @@ void readTemp(){
 void readFlow(){
 
   // Read differential pressures
-  int diffPressure1 = sensor1_calib_a*getADC(0) - sensor1_calib_b;    // expiration
-  int diffPressure2 = sensor2_calib_a*getADC(1) - sensor2_calib_b;    // inspiration
+  int diffPressure1 = int(getADC(0));    // expiration
+  int diffPressure2 = int(getADC(1));    // inspiration
+
+  // Calibrate
+  int calib_diffPressure1 = sensor1_calib_a*diffPressure1 - sensor1_calib_b;    // expiration
+  int calib_diffPressure2 = sensor2_calib_a*diffPressure2 - sensor2_calib_b;    // inspiration
 
   // We are going to take the sqrt, make sure its positive
-  if(diffPressure1 < 0){
-    diffPressure1 = 0;
+  if(calib_diffPressure1 < 0){
+    calib_diffPressure1 = 0;
   }
-  if(diffPressure2 < 0){
-    diffPressure2 = 0;  
+  if(calib_diffPressure2 < 0){
+    calib_diffPressure2 = 0;  
   }
 
   // Convert to Flow with Venturi Equation
   float flow = 0.0;
-  if(diffPressure1 > diffPressure2){
-    flow = -VENTURI_CONST*sqrt(diffPressure1);
+  if(calib_diffPressure1 > calib_diffPressure2){
+    flow = -VENTURI_CONST*sqrt(calib_diffPressure1);
   }else{   
-    flow = VENTURI_CONST*sqrt(diffPressure2);
+    flow = VENTURI_CONST*sqrt(calib_diffPressure2);
   }
   
   // Print
+  Serial.print("flow_expi:");
+  Serial.println(diffPressure1);  
+  Serial.print("flow_inspi:");
+  Serial.println(diffPressure2);
   Serial.print("flow:");
   Serial.println(flow,2);  
 }

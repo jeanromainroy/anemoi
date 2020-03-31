@@ -5,19 +5,22 @@ In the context of the COVID-19 pandemic, the global health system is facing a ve
 ![Screenshot](imgs/schema.png)
 
 
-# Materials
+# Bill of Materials
 
-1. Access to 3d printer and PLA filament
+1. Access to 3d printer and PLA filament. (Our prototype was printed on the Monoprice 3D printer V2)
 
-2. 5/8 inch vinyl tubing
+2. 5/8 inch vinyl tubing (15mm interior diameter)
 
 3. Brass connectors & valves
 
-4. Microcontroller (i.e. arduino) and Raspberry Pi
+4. Microcontroller (i.e. arduino) and Computer (i.e. Raspberry Pi)
 
 5. Barometric Pressure (BM280) and Differential (MXP5010) Pressure Sensors
 
-6. more than 50W Air Pump
+6. Air Pump >50 Watts
+
+7. 12V car battery
+
 
 # CADs
 
@@ -34,7 +37,36 @@ Our venturi valve is bidirectional to measure the expiratory and inspiratory flo
 
 # Sensors
 
-Sampling frequency for all sensors should be between >100ms to prevent performance drops on the UI.
+Sampling frequency for all sensors should be >100ms to prevent performance drops on the UI.
+
+## Pressure Calibration
+
+We connected the water column and the sensor in parallel and we applied a constant pressure. 
+
+
+![Screenshot](imgs/pressure_calib.png)
+
+
+We read the values coming from the sensor using the test_sensor.py script. Here are our results,
+
+		Sensor  | Water Column (cmH2O)
+		------------------------------
+			8   |    10
+			18  |    20
+			25  |    30
+			30  |    40
+
+
+We find the linear regression to find the calibration coffeciants (true_val = c1*sensor_val + c2), 
+
+		c1 = 1.34
+		c2 = static diff between sensors = -2.1
+
+
+## Flow Calibration
+
+For the flow we use Archimede's Principle stating that if a body is completely submerged the volume of fluid displaced is equal to the volume of the body. 
+We inflate a submerged balloon placed in a graduated cylinder. 
 
 
 # Arduino 
