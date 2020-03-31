@@ -51,23 +51,46 @@ Sampling frequency for all sensors should be >100ms to prevent performance drops
 We connected the water column and the sensor in parallel and we applied a constant pressure. 
 
 
-![Screenshot](imgs/pressure_calib_img.png)
+![Screenshot](imgs/pressure_sensor_img.png)
 
 
 We read the values coming from the sensor using the test_sensor.py script. Here are our results,
 
-		Water Column (cmH2O)  |  Sensor Reading
-		----------------------------------------
-						10    |    8
-						20    |    18
-						30    |    25
-						40    |    30
+		Measure Pressure   |   Actual Pressure (cmH2O)
+					-4.74   |   0
+					15.21   |   20
+					17.11   |   22
+					18.94   |   24
+					20.8   |   26
+					22.88   |   28
+					24.57   |   30
+					26.11   |   32
+					27.15   |   34
+					26.47   |   36
+					27.45   |   38
+					7.39   |   11
+					6.25   |   10
+					5.12   |   9
+					4.3   |   8
+					0.88   |   4
+					2.88   |   6
+					-1.22   |   2
+					-0.14   |   3
+					1.84   |   5
+					8.81   |   12
+					13.65   |   17
+					12.83   |   16
+					12.12   |   15
+					16.77   |   19
 
 
 We find the linear regression to find the calibration coffeciants (true_val = c1*sensor_val + static diff between sensors), 
 
-		c1 = 1.34
-		c2 = measured when the machine boots up
+		c1 = 1.14
+		c2 = Measured when the machine boots up
+
+
+![Screenshot](imgs/pressure_sensor_graph.png)
 
 
 
@@ -111,6 +134,8 @@ Here are our results,
 						1000   |   1.55
 						800   |   1.52
 
+
+We force the y intercept to be at 0,
 
 ![Screenshot](imgs/flow_sensor_graph.png)
 

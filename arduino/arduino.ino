@@ -8,13 +8,13 @@ typedef unsigned char uchar;
 
 // GENERAL
 int LOOP_DELAY = 10; // in ms
-int SENSOR_SAMPLE_RATE = 50; // in ms
+int SENSOR_SAMPLE_RATE = 100; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
 BME280 bmp_in; //Uses default I2C address 0x77
 BME280 bmp_out; //Uses I2C address 0x76 (jumper closed)
-float pressure_calib_a = 1.34;
+float pressure_calib_a = 1.14;
 float pressure_calib_b = 0.0;
 
 // The Venturi ADC Pins
@@ -22,14 +22,9 @@ float pressure_calib_b = 0.0;
 #define ADC_CS  12
 #define ADC_DI 11
 #define ADC_DO 10
-float VENTURI_A1 = 15;
-float VENTURI_A2 = 7.5;
-float FLUID_DENSITY = 1.225; // kg/m3
-float VENTURI_CONST = VENTURI_A1*sqrt((2.0/FLUID_DENSITY)*(1.0/(pow((VENTURI_A1/VENTURI_A2),2)-1.0)));
-float sensor1_calib_a = 1.0;
 float sensor1_calib_b = 8;
-float sensor2_calib_a = 1.0;
 float sensor2_calib_b = 11;
+float flow_calib_a = 510.96;
 
 
 // Pump pins
@@ -165,27 +160,23 @@ void readTemp(){
 void readFlow(){
 
   // Read differential pressures
-  int diffPressure1 = int(getADC(0));    // expiration
-  int diffPressure2 = int(getADC(1));    // inspiration
-
-  // Calibrate
-  int calib_diffPressure1 = sensor1_calib_a*diffPressure1 - sensor1_calib_b;    // expiration
-  int calib_diffPressure2 = sensor2_calib_a*diffPressure2 - sensor2_calib_b;    // inspiration
+  int diffPressure1 = int(getADC(0)) - sensor1_calib_b;    // expiration
+  int diffPressure2 = int(getADC(1)) - sensor2_calib_b;    // inspiration
 
   // We are going to take the sqrt, make sure its positive
-  if(calib_diffPressure1 < 0){
-    calib_diffPressure1 = 0;
+  if(diffPressure1 < 0){
+    diffPressure1 = 0;
   }
-  if(calib_diffPressure2 < 0){
-    calib_diffPressure2 = 0;  
+  if(diffPressure2 < 0){
+    diffPressure2 = 0;  
   }
 
   // Convert to Flow with Venturi Equation
   float flow = 0.0;
-  if(calib_diffPressure1 > calib_diffPressure2){
-    flow = -VENTURI_CONST*sqrt(calib_diffPressure1);
+  if(diffPressure1 > diffPressure2){
+    flow = -flow_calib_a*sqrt(diffPressure1);
   }else{   
-    flow = VENTURI_CONST*sqrt(calib_diffPressure2);
+    flow = flow_calib_a*sqrt(diffPressure2);
   }
   
   // Print
