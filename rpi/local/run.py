@@ -110,6 +110,7 @@ class serialWrapper:
 def serialProcess():
 	global NEW_INPIRATION_TIME
 	global NEW_EXPIRATION_TIME
+	global NEW_TRIGGER
 	global NEW_SESSION_ID
 
 	# get an instance of the read class
@@ -169,12 +170,13 @@ def serialProcess():
 			payload = payload.encode('utf-8')
 			serWrapper.write(payload)
 			NEW_TRIGGER = -1
-
+	
 
 
 def readSessions():
 	global NEW_INPIRATION_TIME
 	global NEW_EXPIRATION_TIME
+	global NEW_TRIGGER
 	global NEW_SESSION_ID
 
 	while(True):
