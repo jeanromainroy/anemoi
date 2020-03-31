@@ -144,7 +144,7 @@ function renderTrends(){
     function draw(){
 
         var promises = [];
-        promises.push(request_GET("api/flow/read.php?nbr-points=" + NBR_OF_POINTS));
+        promises.push(request_GET("api/volume/read.php?nbr-points=" + NBR_OF_POINTS));
         promises.push(request_GET("api/pressure/read.php?nbr-points=" + NBR_OF_POINTS));
 
         Promise.all(promises).then(function (results){
@@ -152,27 +152,27 @@ function renderTrends(){
             // d[0] is the value, d[1] is the timestamp
 
             // Grab results
-            var flowData = results[0];
+            var volumeData = results[0];
             var pressureData = results[1];
 
             // check
-            if(flowData == null){
-                flowData = [];
+            if(volumeData == null){
+                volumeData = [];
             }
             if(pressureData == null){
                 pressureData = [];
             }
-            if(flowData.length == 0 && pressureData.length == 0){
+            if(volumeData.length == 0 && pressureData.length == 0){
                 alert("ERROR: There is no data in the DB");
                 return;
             }
 
             // // Get Min/Max
-            // var flowMax_y = getMax(flowData);
-            var flowMax_x = datetimeParser(flowData[0][1]);
-            // var flowMin_y = getMin(flowData);
-            var flowMin_x = datetimeParser(flowData[flowData.length-1][1]);
-            // var flowExtraY = Math.round((flowMax_y - flowMin_y)*0.1);
+            // var volumeMax_y = getMax(volumeData);
+            var volumeMax_x = datetimeParser(volumeData[0][1]);
+            // var volumeMin_y = getMin(volumeData);
+            var volumeMin_x = datetimeParser(volumeData[volumeData.length-1][1]);
+            // var volumeExtraY = Math.round((volumeMax_y - volumeMin_y)*0.1);
 
             // var pressureMax_y = getMax(pressureData);
             var pressureMax_x = datetimeParser(pressureData[0][1]);
@@ -180,8 +180,8 @@ function renderTrends(){
             var pressureMin_x = datetimeParser(pressureData[pressureData.length-1][1]);
             // var pressureExtraY = Math.round((pressureMax_y - pressureMin_y)*0.1);
 
-            var globalMax_x = Math.min(...[pressureMax_x,flowMax_x]);
-            var globalMin_x = Math.min(...[pressureMin_x,flowMin_x]);
+            var globalMax_x = Math.min(...[pressureMax_x,volumeMax_x]);
+            var globalMin_x = Math.min(...[pressureMin_x,volumeMin_x]);
 
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.round(Math.abs(Date.now() - globalMax_x)/1000);
@@ -201,7 +201,7 @@ function renderTrends(){
                 xScale.domain([globalMin_x,globalMax_x]);
                 yTopScale.domain([0, 1500]);
                 yBottomScale.domain([0,40]);
-                //yTopScale.domain([(flowMin_y-flowExtraY),(flowMax_y+flowExtraY)]);
+                //yTopScale.domain([(volumeMin_y-volumeExtraY),(volumeMax_y+volumeExtraY)]);
                 //yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
 
                 // clear
@@ -214,12 +214,12 @@ function renderTrends(){
 
                 // update line
                 var pathsGroup = g.selectAll("path")
-                    .data(flowData)
+                    .data(volumeData)
                     .enter().append("g");
 
                 pathsGroup.append("path")
                     .attr("class", "dataviz")
-                    .datum(flowData)
+                    .datum(volumeData)
                     .attr("d", lineTop)
                     .attr("fill","none")
                     .attr("stroke","#3d5c94")

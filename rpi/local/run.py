@@ -7,15 +7,17 @@ import serial
 import db_helper as db_helper
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
-volumeTable = db_helper.Flow()
+volumeTable = db_helper.Volume()
 
 # Constants
 DEFAULT_WAIT_TIME = 5
 DEFAULT_INSPIRATION_TIME = 4
 DEFAULT_EXPIRATION_TIME = 12
+DEFAULT_TRIGGER = 5
 
 NEW_INPIRATION_TIME = -1
 NEW_EXPIRATION_TIME = -1
+NEW_TRIGGER = -1
 NEW_SESSION_ID = -1
 
 
@@ -162,6 +164,12 @@ def serialProcess():
 			serWrapper.write(payload)
 			NEW_EXPIRATION_TIME = -1
 
+		if(NEW_TRIGGER > 0):
+			payload = 'trigger:' + str(NEW_TRIGGER) + ";"
+			payload = payload.encode('utf-8')
+			serWrapper.write(payload)
+			NEW_TRIGGER = -1
+
 
 
 def readSessions():
@@ -174,6 +182,7 @@ def readSessions():
 		# init to default values
 		inspiration_time = DEFAULT_INSPIRATION_TIME
 		expiration_time = DEFAULT_EXPIRATION_TIME
+		trigger_level = DEFAULT_TRIGGER
 		
 		# fetch DB for last session
 		sessionTable.attach()
@@ -190,6 +199,7 @@ def readSessions():
 			lastSession_id = lastSession['id']
 			respiration_rate = lastSession['respiration_rate']
 			inspiration_expiration_ratio = lastSession['inspiration_expiration_ratio']
+			trigger_level = lastSession['trigger_level']
 
 			if(respiration_rate is None or inspiration_expiration_ratio is None):
 				print("ERROR: Inspiration/Expiration values are invalid")
@@ -204,7 +214,9 @@ def readSessions():
 				if(NEW_SESSION_ID != lastSession_id):
 					NEW_INPIRATION_TIME = inspiration_time
 					NEW_EXPIRATION_TIME = expiration_time
+					NEW_TRIGGER = trigger_level
 					NEW_SESSION_ID = lastSession_id
+
 
 		# sleep
 		time.sleep(DEFAULT_WAIT_TIME)

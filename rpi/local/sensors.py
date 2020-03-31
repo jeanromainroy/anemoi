@@ -12,7 +12,7 @@ except ImportError:
 # RPI Constants
 PUMP_PIN = 18
 
-# SPI Port, ADC Flow Center
+# SPI Port, ADC Volume Center
 PIN_CLK = 12
 PIN_DO  = 13
 PIN_DI  = 15
@@ -90,17 +90,17 @@ def runPump():
 		time.sleep(expiration_time)
 
 
-def readFlowCenter():
+def readVolumeCenter():
 
 	while(True):
 
 		# get pressure value
-		flow_val = getADC(0)
+		volume_val = getADC(0)
 		
 		# fetch DB for last session
-		flowTable.attach()
-		flowTable.create(flow_val)
-		flowTable.detach()
+		volumeTable.attach()
+		volumeTable.create(volume_val)
+		volumeTable.detach()
 
 		time.sleep(SAMPLING_RATE)
 

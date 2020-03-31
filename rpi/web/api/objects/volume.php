@@ -1,9 +1,9 @@
 <?php
-class Flow{
+class Volume{
  
     // database connection and table name
     private $conn;
-    private $table_name = "flow";
+    private $table_name = "volume";
 
     // object properties
     public $value;

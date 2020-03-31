@@ -9,25 +9,25 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
  
 // include database and object files
 include_once '../config/database.php';
-include_once '../objects/flow.php';
+include_once '../objects/volume.php';
 
 // instantiate database
 $database = new Database();
 $db = $database->getConnection();
  
-// initialize flow object
-$flow = new Flow($db);
+// initialize volume object
+$volume = new Volume($db);
  
 // make sure data is not empty
 if(
-	$flow->delete()
+	$volume->delete()
 ){
  
 	// set response code
 	http_response_code(200);
 
 	// tell the user
-	echo json_encode(array("message" => "Flow was deleted."));
+	echo json_encode(array("message" => "Volume was deleted."));
 }
  
 // if unable to create the branch, tell the user
@@ -37,6 +37,6 @@ else{
 	http_response_code(503);
 
 	// tell the user
-	echo json_encode(array("message" => "Error : Unable to delete flow."));
+	echo json_encode(array("message" => "Error : Unable to delete volume."));
 }
 ?>

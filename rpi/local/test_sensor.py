@@ -94,7 +94,7 @@ def readSensor(sensorID, offset):
     serWrapper = serialWrapper()
 
     # init vars
-    flowTotal = 0.0
+    volumeTotal = 0.0
     zeroCount = 0
     samplingTime = 0.05
 
@@ -118,63 +118,63 @@ def readSensor(sensorID, offset):
         # if val is numeric 
         if(isNumeric(val)):
 
-            if(key == "flow_expi" and sensorID == 1):
+            if(key == "volume_expi" and sensorID == 1):
 
                 # convert to float
                 val = float(val) + offset
                 if(val <= 1 and val >= -1):
                     val = 0
 
-                flowTotal += val*samplingTime
+                volumeTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
                         zeroCount = 0
 
                 if(zeroCount > 200):
-                        flowTotal = 0.0
+                        volumeTotal = 0.0
                         zeroCount = 0
 
-                print("Flow Inspi (L/min) = " + str(val) + ", total = " + str(flowTotal))
+                print("Volume Inspi (L/min) = " + str(val) + ", total = " + str(volumeTotal))
 
-            elif(key == "flow_inspi" and sensorID == 2):
+            elif(key == "volume_inspi" and sensorID == 2):
                 
                 # convert to float
                 val = float(val) + offset
                 if(val <= 1 and val >= -1):
                     val = 0
                     
-                flowTotal += val*samplingTime
+                volumeTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
                         zeroCount = 0
 
                 if(zeroCount > 200):
-                        flowTotal = 0.0
+                        volumeTotal = 0.0
                         zeroCount = 0
 
-                print("Flow Expi (L/min) = " + str(val) + ", total = " + str(flowTotal))
+                print("Volume Expi (L/min) = " + str(val) + ", total = " + str(volumeTotal))
 
 
-            elif(key == "flow" and sensorID == 3):
+            elif(key == "volume" and sensorID == 3):
                 
                 # convert to float
                 val = float(val) + offset
                 if(val <= 1 and val >= -1):
                     val = 0
 
-                flowTotal += val*samplingTime
+                volumeTotal += val*samplingTime
                 if(val <= 0.0):
                         zeroCount += 1
                 else:
                         zeroCount = 0
 
                 if(zeroCount > 200):
-                        flowTotal = 0.0
+                        volumeTotal = 0.0
                         zeroCount = 0
 
-                print("Flow (L/min) = " + str(val) + ", total = " + str(flowTotal))
+                print("Volume (L/min) = " + str(val) + ", total = " + str(volumeTotal))
 
 
             elif(key == "pressure"):
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Reads the sensor data')
 
     # Arguments
-    parser.add_argument("sensorID",help="1: Flow, 2: Pressure")
+    parser.add_argument("sensorID",help="1: Volume, 2: Pressure")
     parser.add_argument("offset", help="y = ax+b, this is the b")
     args = parser.parse_args()
 

@@ -9,20 +9,20 @@ if __name__ == "__main__":
 
     # get instance of the tables
     pressureTable = db_helper.Pressure() 
-    flowTable = db_helper.Flow() 
+    volumeTable = db_helper.Volume() 
 
     try:
 
         # Loop
         while(True):
             
-            flowTable.attach()
-            randNumb = random.randint(-20,80)
-            flowTable.create(randNumb)
-            flowTable.detach()
+            volumeTable.attach()
+            randNumb = random.randint(0,1000)
+            volumeTable.create(randNumb)
+            volumeTable.detach()
 
             pressureTable.attach()
-            randNumb = random.randint(15,500)
+            randNumb = random.randint(0,40)
             pressureTable.create(randNumb)
             pressureTable.detach()
 

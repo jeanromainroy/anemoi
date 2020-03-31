@@ -370,11 +370,11 @@ class Pressure:
 			print("ERROR: DB is not connected")
 
 
-class Flow:
+class Volume:
 
 	def __init__(self):
 		self.conn = None
-		self.table_name = "flow"	
+		self.table_name = "volume"	
 
 
 	def attach(self):

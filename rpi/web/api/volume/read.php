@@ -6,7 +6,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 // include database and object files
 include_once '../config/database.php';
-include_once '../objects/flow.php';
+include_once '../objects/volume.php';
 
 // Get the url
 $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 
@@ -61,11 +61,11 @@ if(!is_numeric($nbrOfPoints)){
 $database = new Database();
 $db = $database->getConnection();
  
-// initialize flow object
-$flow = new Flow($db);
+// initialize volume object
+$volume = new Volume($db);
 
 // query message
-$stmt = $flow->read($nbrOfPoints);
+$stmt = $volume->read($nbrOfPoints);
 
 // Check if empty
 if(!is_object($stmt)){

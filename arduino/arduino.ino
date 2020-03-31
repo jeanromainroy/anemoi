@@ -36,8 +36,11 @@ int zeroTrigger = 20;
 #define PUMP_OUT 3
 int inspiration_addr = 0;
 int expiration_addr = 1;
+int trigger_addr = 2;
 int inspirationTime = -1;
 int expirationTime = -1;
+int trigger = -1;
+int DEFAULT_TRIGGER = 5;
 int DEFAULT_INSPIRATION_TIME = 2; // in s
 int DEFAULT_EXPIRATION_TIME = 3;  // in s
 
@@ -69,9 +72,10 @@ void setup() {
   // Set the Pump Pin
   pinMode(PUMP_OUT, OUTPUT);  
   readPumpParams();
-  if(inspirationTime <= 0 || expirationTime <= 0){
+  if(inspirationTime <= 0 || expirationTime <= 0 || trigger <= 0){
     updateInspirationTime(DEFAULT_INSPIRATION_TIME);
     updateExpirationTime(DEFAULT_EXPIRATION_TIME);
+    updateTrigger(DEFAULT_TRIGGER);
   }
   readPumpParams();
   digitalWrite(PUMP_OUT, 0);
@@ -79,6 +83,8 @@ void setup() {
   Serial.println(inspirationTime);
   Serial.print("expiration:");
   Serial.println(expirationTime);
+  Serial.print("trigger:");
+  Serial.println(trigger);
 
   // Static Pressure Difference 
   delay(2000);
@@ -245,9 +251,18 @@ void updateExpirationTime(short expirTime){
   Serial.println("s");
 }
 
+void updateTrigger(short trig){
+  EEPROM.update(trigger_addr, trig);
+  trigger = trig;
+  Serial.println("Updated Trigger to ");
+  Serial.print(trigger);
+  Serial.println(" cmH2O");
+}
+
 void readPumpParams(){
   inspirationTime = EEPROM.read(inspiration_addr);
   expirationTime = EEPROM.read(expiration_addr);
+  trigger = EEPROM.read(trigger_addr);
 }
 
 
@@ -341,6 +356,9 @@ void loop() {
         
       }else if(key.equals("expiration_time")){
         updateExpirationTime(intVal);
+        
+      }else if(key.equals("trigger")){
+        updateTrigger(intVal);
       }
     }
   }
