@@ -48,8 +48,7 @@ Sampling frequency for all sensors should be >100ms to prevent performance drops
 
 ## Pressure Calibration
 
-We connected the water column and the sensor in parallel and we applied a constant pressure. 
-
+We connected the water column and the sensor in parallel and we applied a constant pressure using a balloon that we inflate or deflate. 
 
 ![Screenshot](imgs/pressure_sensor_img.png)
 

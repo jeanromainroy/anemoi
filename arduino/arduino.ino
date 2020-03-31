@@ -8,7 +8,7 @@ typedef unsigned char uchar;
 
 // GENERAL
 int LOOP_DELAY = 10; // in ms
-int SENSOR_SAMPLE_RATE = 100; // in ms
+int SENSOR_SAMPLE_RATE = 50; // in ms
 int counter = 0;
 
 // Get I2C instances of pressure/temp sensors
@@ -25,6 +25,11 @@ float pressure_calib_b = 0.0;
 float sensor1_calib_b = 8;
 float sensor2_calib_b = 11;
 float flow_calib_a = 510.96;
+
+float volume = 0.0;
+int zeroRadius = 10;
+int zeroCount = 0;
+int zeroTrigger = 20;
 
 
 // Pump pins
@@ -157,7 +162,7 @@ void readTemp(){
   Serial.println(temp, 2);  // 2 decimals  
 }
 
-void readFlow(){
+float readFlow(){
 
   // Read differential pressures
   int diffPressure1 = int(getADC(0)) - sensor1_calib_b;    // expiration
@@ -180,12 +185,40 @@ void readFlow(){
   }
   
   // Print
-  Serial.print("flow_expi:");
-  Serial.println(diffPressure1);  
-  Serial.print("flow_inspi:");
-  Serial.println(diffPressure2);
-  Serial.print("flow:");
-  Serial.println(flow,2);  
+//  Serial.print("flow_expi:");
+//  Serial.println(diffPressure1);  
+//  Serial.print("flow_inspi:");
+//  Serial.println(diffPressure2);
+//  Serial.print("flow:");
+//  Serial.println(flow,2);  
+
+  return flow;
+}
+
+void readVolume(){
+
+  // read flow
+  float flowVal = float(readFlow());
+
+  if(flowVal <= zeroRadius && flowVal >= -zeroRadius){
+    // if the flow value is approx 0
+    zeroCount += 1;
+  }else{
+    // if we have a value
+    zeroCount = 0;  
+  }
+
+  if(zeroCount > zeroTrigger){
+    volume = 0;
+    zeroCount = 0;  
+  }
+
+  // accumulate
+  volume += flowVal*(float(SENSOR_SAMPLE_RATE)/1000.0);
+
+  // Print
+  Serial.print("volume:");
+  Serial.println(volume,2);     
 }
 
 void updateInspirationTime(short inspirTime){
@@ -251,7 +284,7 @@ void loop() {
   // Read Sensors
   if(counter % (SENSOR_SAMPLE_RATE/LOOP_DELAY) == 0){
     readPressure();
-    readFlow();
+    readVolume();
   }
 
   // Read Serial

@@ -7,7 +7,7 @@ import serial
 import db_helper as db_helper
 sessionTable = db_helper.Session()
 pressureTable = db_helper.Pressure()
-flowTable = db_helper.Flow()
+volumeTable = db_helper.Flow()
 
 # Constants
 DEFAULT_WAIT_TIME = 5
@@ -114,7 +114,7 @@ def serialProcess():
 	serWrapper = serialWrapper()
 
 	# attach db
-	flowTable.attach()
+	volumeTable.attach()
 	pressureTable.attach()
 
 	while True:
@@ -138,15 +138,15 @@ def serialProcess():
 		if(isNumeric(val)):
 
 			try:
-				if(key == "flow"):
-					flowTable.create(val)
+				if(key == "volume"):
+					volumeTable.create(val)
 
 				elif(key == "pressure"):
 					pressureTable.create(val)
 			
 			except:
 				print("ERROR: Could not push to DB")
-				flowTable.detach()
+				volumeTable.detach()
 				pressureTable.detach()
 
 		# Check if we need to write
@@ -224,11 +224,6 @@ if __name__ == "__main__":
 	p = threading.Thread(target=readSessions)
 	threads.append(p)
 	p.start()
-
-	# # Thread 3
-	# p = threading.Thread(target=readFlowCenter)
-	# threads.append(p)
-	# p.start()
 
 	# Start the Threads
 	for index, thread in enumerate(threads):
