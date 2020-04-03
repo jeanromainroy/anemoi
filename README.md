@@ -249,6 +249,17 @@ To deliver the Anemoi web app, you will need to setup your pi as a LAMP server
 
 ## The Firewall
 
+
+1. Make sure your hostname is set correctly,
+
+		hostnamectl set-hostname --YOUR HOSTNAME--
+
+
+2. Also add it to hosts file by sudo nano /etc/hosts and adding this under 127.0.0.1 ...
+	
+		--IP-- --YOUR HOSTNAME--
+
+
 1. Install ufw
 
 		sudo apt-get install ufw
@@ -348,11 +359,11 @@ To setup Anemoi you need a couple of additional packages & configurations:
 
         CREATE TABLE session (id int not null auto_increment, patient_id int, vac_pc tinyint(1) not null, vac_vc tinyint(1) not null, cpap tinyint(1) not null, bipap tinyint(1) not null, peep int not null, delta_p int, respiration_rate int, inspiration_expiration_ratio float, fio2 int, trigger_level float, tidal_volume int, max_pressure int, updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(), created_at TIMESTAMP NOT NULL DEFAULT NOW(), PRIMARY KEY (id));        
 
-        CREATE TABLE pressure (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
+        CREATE TABLE pressure (id int not null auto_increment, value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3), PRIMARY KEY (id));
         
-		CREATE TABLE volume (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
+		CREATE TABLE volume (id int not null auto_increment, value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3), PRIMARY KEY (id));
 
-		CREATE TABLE flow (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
+		CREATE TABLE flow (id int not null auto_increment, value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3), PRIMARY KEY (id));
 
 
 ## Managing your web folder

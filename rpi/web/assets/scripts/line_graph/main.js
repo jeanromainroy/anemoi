@@ -225,9 +225,6 @@ function renderTrends(){
 
             // update axis
             g.select(".xaxis").call(xAxis);
-            
-            // g.selectAll("path.top").remove();
-            // g.selectAll("path.bottom").remove();
 
             // update line
             var topPathsGroup = g.selectAll(".top")
