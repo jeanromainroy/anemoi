@@ -148,20 +148,20 @@ function renderTrends(){
         .curve(d3.curveMonotoneX);
 
     // Runtime Vars
-    var lastMaxVolume = datetimeFormatter(Date.now() - TIME_WINDOW);   // minus 20 seconds
-    var lastMaxPressure = datetimeFormatter(Date.now() - TIME_WINDOW);   // minus 20 seconds
+    var lastMaxVolumeId = 1;
+    var lastMaxPressureId = 1;
     var volumeData = [];
     var pressureData = [];
 
     function draw(){
 
         var promises = [];
-        promises.push(request_GET("api/volume/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxVolume));
-        promises.push(request_GET("api/pressure/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxPressure));
+        promises.push(request_GET("api/volume/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxVolumeId));
+        promises.push(request_GET("api/pressure/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxPressureId));
 
         Promise.all(promises).then(function (results){
             // INFO: dataframe comes back ordered in timestamped descending order
-            // d[0] is the value, d[1] is the timestamp
+            // d[0] is the value, d[1] is the timestamp, d[2] is the id
 
             // Grab results
             var newVolumes = results[0];
@@ -180,15 +180,15 @@ function renderTrends(){
 
             // Get Max time
             if(newVolumes.length > 0){
-                lastMaxVolume = newVolumes[0][1];
+                lastMaxVolumeId = newVolumes[0][2];
             }
             if(newPressures.length > 0){
-                lastMaxPressure = newPressures[0][1];
+                lastMaxPressureId = newPressures[0][2];
             }
 
             // Get min time
-            var minLastData = Math.min(...[datetimeParser(lastMaxVolume), datetimeParser(lastMaxPressure)]);
-            
+            var minLastData = Math.min(...[datetimeParser(newPressures[0][1]), datetimeParser(newVolumes[0][1])]);
+
             // Inverse list
             newVolumes = newVolumes.reverse();
             newPressures = newPressures.reverse();

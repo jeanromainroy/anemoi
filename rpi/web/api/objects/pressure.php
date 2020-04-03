@@ -18,7 +18,7 @@ class Pressure{
     function read($nbrOfPoints, $after){
     
         // Query
-        $query = "SELECT value, created_at FROM " . $this->table_name . " WHERE created_at > '" . $after . "' ORDER BY id DESC LIMIT " . $nbrOfPoints;
+        $query = "SELECT value, created_at, id FROM " . $this->table_name . " WHERE id > " . $after . " ORDER BY id DESC LIMIT " . $nbrOfPoints;
         
         // Submit
         $stmt = $this->conn->query($query);

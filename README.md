@@ -282,9 +282,14 @@ To setup Anemoi you need a couple of additional packages & configurations:
 
   * All the necessary packages
 	
-		sudo apt-get install git python3-dev python3-smbus i2c-tools
+		sudo apt-get install git python3-dev pip3 python3-smbus i2c-tools
 
 	
+  * A lib manager
+
+		sudo apt-get install python3-pip
+
+
   * The Python/MySQL connector
 		
 		sudo python3 -m pip install mysql-connector-python
@@ -298,11 +303,6 @@ To setup Anemoi you need a couple of additional packages & configurations:
   * Apache Php Interpreter
 		
 		sudo apt-get install php libapache2-mod-php
-
-
-  * A lib manager
-
-		sudo apt-get install python3-pip
 
 
   * Make sure the I2C & Serial interface is enabled 
@@ -364,6 +364,50 @@ To setup Anemoi you need a couple of additional packages & configurations:
 		CREATE TABLE volume (id int not null auto_increment, value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3), PRIMARY KEY (id));
 
 		CREATE TABLE flow (id int not null auto_increment, value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3), PRIMARY KEY (id));
+
+
+7. Edit config file to start mysql with event_scheduler,
+
+		sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+
+8. Add at bottom
+
+		event_scheduler=ON
+
+
+9. Turn on global scheduler,
+
+		SET GLOBAL event_scheduler = ON;
+
+
+10. Add pressure cleanup event,
+
+		DELIMITER $$
+
+		CREATE EVENT `Every_60_Minutes_Pressure_Cleanup` 
+		ON SCHEDULE EVERY 10 MINUTE 
+		ON COMPLETION PRESERVE 
+		DO BEGIN delete from pressure where TIMESTAMPDIFF(MINUTE, created_at, now())>60; 
+		END;
+		$$
+		DELIMITER ;
+
+8. Add volume cleanup event,
+
+		DELIMITER $$
+
+		CREATE EVENT `Every_60_Minutes_Volume_Cleanup` 
+		ON SCHEDULE EVERY 10 MINUTE 
+		ON COMPLETION PRESERVE 
+		DO BEGIN delete from volume where TIMESTAMPDIFF(MINUTE, created_at, now())>60; 
+		END;
+		$$
+		DELIMITER ;
+
+9. Check if works,
+
+		show variables where variable_name='event_scheduler';
 
 
 ## Managing your web folder
