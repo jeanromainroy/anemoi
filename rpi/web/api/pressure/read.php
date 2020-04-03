@@ -24,9 +24,10 @@ parse_str($url_components['query'], $params);
 
 // Parse
 $nbrOfPoints = htmlspecialchars(strip_tags($params['nbr-points']));
+$after = htmlspecialchars(strip_tags($params['after']));
 
 // Check if nbr of points is set
-if(!isset($nbrOfPoints)){
+if(!isset($nbrOfPoints) || !isset($after)){
     
     // set response code
     http_response_code(400);
@@ -36,7 +37,7 @@ if(!isset($nbrOfPoints)){
 
     die();
 }
-if(empty($nbrOfPoints)){
+if(empty($nbrOfPoints) || empty($after)){
 
     // set response code
     http_response_code(400);
@@ -65,7 +66,7 @@ $db = $database->getConnection();
 $pressure = new Pressure($db);
 
 // query message
-$stmt = $pressure->read($nbrOfPoints);
+$stmt = $pressure->read($nbrOfPoints,$after);
 
 // Check if empty
 if(!is_object($stmt)){

@@ -352,6 +352,8 @@ To setup Anemoi you need a couple of additional packages & configurations:
         
 		CREATE TABLE volume (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
 
+		CREATE TABLE flow (value float not null, created_at TIMESTAMP(3) NOT NULL DEFAULT NOW(3));
+
 
 ## Managing your web folder
 

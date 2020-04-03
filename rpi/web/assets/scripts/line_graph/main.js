@@ -1,12 +1,14 @@
 "use strict";
 
-function getMin(arr){
-    return Math.min(...arr.map(d => d[0]));
+
+function timeIt(){
+    var t0 = performance.now();
+    var t1 = performance.now();
+    console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
+    setTimeout(draw, REFRESH_RATE);
+    return;
 }
 
-function getMax(arr){
-    return Math.max(...arr.map(d => d[0]));
-}
 
 function renderTrends(){
 
@@ -15,14 +17,16 @@ function renderTrends(){
     var datavizBox = d3.select("#dataviz");
 
     // Max acceptable time difference between UI and sensor measurements (in seconds)
-    const MAX_TIME_DIFF = 5; 
+    const MAX_TIME_DIFF = 5000; 
+    const TIME_WINDOW = 10000;
 
     // Number of points we want to show on the UI (careful if too many points it cant render fast enough)
-    const NBR_OF_POINTS = 100;      // NO MORE THAN 200
+    const NBR_OF_POINTS = 50;      // NO MORE THAN 200
     const REFRESH_RATE = 100;      // in ms
 
     // SQL Date Format
     var datetimeParser = d3.timeParse("%Y-%m-%d %H:%M:%S.%L");
+    var datetimeFormatter = d3.timeFormat("%Y-%m-%d %H:%M:%S.%L");
     
     // Audio
     var wasAllowed = false;
@@ -103,17 +107,19 @@ function renderTrends(){
     var yTopAxis = d3.axisLeft(yTopScale);
     var yBottomAxis = d3.axisLeft(yBottomScale);
 
+    // min/max for the y axis
+    yTopScale.domain([0, 1500]);
+    yBottomScale.domain([0,40]);
+
     g.append("g")
         .attr("class","xaxis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
     g.append("g")
-        .attr("class","ytopaxis")
         .call(yTopAxis);
     
     g.append("g")
-        .attr("class","ybottomaxis")
         .attr("transform", "translate(0," + (graphHeight + graphPadding) + ")")
         .call(yBottomAxis);
 
@@ -141,50 +147,66 @@ function renderTrends(){
         })
         .curve(d3.curveMonotoneX);
 
+    // Runtime Vars
+    var lastMaxVolume = datetimeFormatter(Date.now() - TIME_WINDOW);   // minus 20 seconds
+    var lastMaxPressure = datetimeFormatter(Date.now() - TIME_WINDOW);   // minus 20 seconds
+    var volumeData = [];
+    var pressureData = [];
+
     function draw(){
 
         var promises = [];
-        promises.push(request_GET("api/volume/read.php?nbr-points=" + NBR_OF_POINTS));
-        promises.push(request_GET("api/pressure/read.php?nbr-points=" + NBR_OF_POINTS));
+        promises.push(request_GET("api/volume/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxVolume));
+        promises.push(request_GET("api/pressure/read.php?nbr-points=" + NBR_OF_POINTS + "&after=" + lastMaxPressure));
 
         Promise.all(promises).then(function (results){
             // INFO: dataframe comes back ordered in timestamped descending order
             // d[0] is the value, d[1] is the timestamp
 
             // Grab results
-            var volumeData = results[0];
-            var pressureData = results[1];
+            var newVolumes = results[0];
+            var newPressures = results[1];
 
-            // check
-            if(volumeData == null){
-                volumeData = [];
+            // convert to empty if null
+            if(newVolumes == null){
+                newVolumes = [];
             }
-            if(pressureData == null){
-                pressureData = [];
-            }
-            if(volumeData.length == 0 && pressureData.length == 0){
-                alert("ERROR: There is no data in the DB");
-                return;
+            if(newPressures == null){
+                newPressures = [];
             }
 
-            // // Get Min/Max
-            // var volumeMax_y = getMax(volumeData);
-            var volumeMax_x = datetimeParser(volumeData[0][1]);
-            // var volumeMin_y = getMin(volumeData);
-            var volumeMin_x = datetimeParser(volumeData[volumeData.length-1][1]);
-            // var volumeExtraY = Math.round((volumeMax_y - volumeMin_y)*0.1);
+            // Get time now
+            var now = Date.now();
 
-            // var pressureMax_y = getMax(pressureData);
-            var pressureMax_x = datetimeParser(pressureData[0][1]);
-            // var pressureMin_y = getMin(pressureData);
-            var pressureMin_x = datetimeParser(pressureData[pressureData.length-1][1]);
-            // var pressureExtraY = Math.round((pressureMax_y - pressureMin_y)*0.1);
+            // Get Max time
+            if(newVolumes.length > 0){
+                lastMaxVolume = newVolumes[0][1];
+            }
+            if(newPressures.length > 0){
+                lastMaxPressure = newPressures[0][1];
+            }
 
-            var globalMax_x = Math.min(...[pressureMax_x,volumeMax_x]);
-            var globalMin_x = Math.min(...[pressureMin_x,volumeMin_x]);
+            // Get min time
+            var minLastData = Math.min(...[datetimeParser(lastMaxVolume), datetimeParser(lastMaxPressure)]);
+            
+            // Inverse list
+            newVolumes = newVolumes.reverse();
+            newPressures = newPressures.reverse();
+
+            // concat to persistant dataframes
+            volumeData = [...volumeData, ...newVolumes];
+            pressureData = [...pressureData, ...newPressures];
+
+            // remove elements who are too old
+            volumeData = volumeData.filter(function(d){
+                return datetimeParser(d[1]) > now - TIME_WINDOW;
+            });
+            pressureData = pressureData.filter(function(d){
+                return datetimeParser(d[1]) > now - TIME_WINDOW;
+            });
 
             // Get the difference between now and the last time measurement
-            var diffTimeSeconds = Math.round(Math.abs(Date.now() - globalMax_x)/1000);
+            var diffTimeSeconds = Math.abs(now - minLastData);
             if(diffTimeSeconds > MAX_TIME_DIFF){
                 
                 // Start Alarms
@@ -196,43 +218,50 @@ function renderTrends(){
                 // Stop Alarms
                 mainPanel.style("background-color", 'white');
                 pauseAudio();
+            }            
 
-                // Update Scales
-                xScale.domain([globalMin_x,globalMax_x]);
-                yTopScale.domain([0, 1500]);
-                yBottomScale.domain([0,40]);
-                //yTopScale.domain([(volumeMin_y-volumeExtraY),(volumeMax_y+volumeExtraY)]);
-                //yBottomScale.domain([(pressureMin_y-pressureExtraY),(pressureMax_y+pressureExtraY)]);
+            // Update Scales
+            xScale.domain([now - TIME_WINDOW,now]);
 
-                // clear
-                g.selectAll("path.dataviz").remove();
+            // update axis
+            g.select(".xaxis").call(xAxis);
+            
+            // g.selectAll("path.top").remove();
+            // g.selectAll("path.bottom").remove();
 
-                // update axis
-                g.select(".xaxis").call(xAxis);
-                g.select(".ytopaxis").call(yTopAxis);
-                g.select(".ybottomaxis").call(yBottomAxis);
-
-                // update line
-                var pathsGroup = g.selectAll("path")
-                    .data(volumeData)
-                    .enter().append("g");
-
-                pathsGroup.append("path")
-                    .attr("class", "dataviz")
-                    .datum(volumeData)
-                    .attr("d", lineTop)
-                    .attr("fill","none")
-                    .attr("stroke","#3d5c94")
-                    .attr("stroke-width","1px");
+            // update line
+            var topPathsGroup = g.selectAll(".top")
+                .data([volumeData]);
                 
-                pathsGroup.append("path")
-                    .attr("class", "dataviz")
-                    .datum(pressureData)
-                    .attr("d", lineBottom)
-                    .attr("fill","none")
-                    .attr("stroke","#3d5c94")
-                    .attr("stroke-width","1px");    
-            }                
+            var bottomPathsGroup = g.selectAll(".bottom")
+                .data([pressureData]);
+                        
+            // update lines
+            topPathsGroup = topPathsGroup
+                .enter().append("path")
+                .attr("class", "top")
+                .attr("d", lineTop)
+                .attr("fill","none")
+                .attr("stroke","#3d5c94")
+                .attr("stroke-width","2px")
+                .merge(topPathsGroup);
+            
+            topPathsGroup
+                .attr("d", lineTop)
+                .attr("fill","none")
+                .attr("stroke","#3d5c94")
+                .attr("stroke-width","2px");
+                
+            bottomPathsGroup = bottomPathsGroup
+                .enter().append("path")
+                .attr("class", "bottom")
+                .merge(bottomPathsGroup); 
+
+            bottomPathsGroup
+                .attr("d", lineBottom)
+                .attr("fill","none")
+                .attr("stroke","#3d5c94")
+                .attr("stroke-width","2px")
 
             // Redraw
             setTimeout(draw, REFRESH_RATE);

@@ -67,6 +67,8 @@ var request_GET = function(url, ERROR_MSG=true, RESPONSE_TYPE="json") {
 	});
 };
 
+
+
 /**
  * A POST request using XMLHttpRequest
  *

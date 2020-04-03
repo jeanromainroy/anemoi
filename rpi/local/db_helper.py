@@ -261,7 +261,6 @@ class Session:
 			print("ERROR: DB is not connected")
 
 
-
 class Pressure:
 
 	def __init__(self):
@@ -308,7 +307,7 @@ class Pressure:
 			print("ERROR: DB is not connected")
 
 
-	def read(self):
+	def read(self, nbrPoints):
 
 		if(self.conn.is_connected()):
 
@@ -317,6 +316,8 @@ class Pressure:
 
 			# build query
 			query = "SELECT value, created_at FROM " + self.table_name + " ORDER BY created_at ASC"
+			if(nbrPoints is not None):
+				query = query + " LIMIT " + str(nbrPoints)
 
 			# Execute the query
 			cursor.execute(query)
@@ -345,6 +346,7 @@ class Pressure:
 		
 		else:
 			print("ERROR: DB is not connected")
+
 
 
 	def delete(self,id):
@@ -416,7 +418,7 @@ class Volume:
 			print("ERROR: DB is not connected")
 
 
-	def read(self):
+	def read(self, nbrPoints):
 
 		if(self.conn.is_connected()):
 
@@ -424,7 +426,9 @@ class Volume:
 			cursor = self.conn.cursor()
 
 			# build query
-			query = "SELECT value, created_at FROM " + self.table_name + " ORDER BY created_at ASC"
+			query = "SELECT value, created_at FROM " + self.table_name + " ORDER BY created_at DESC"
+			if(nbrPoints is not None):
+				query = query + " LIMIT " + str(nbrPoints)
 
 			# Execute the query
 			cursor.execute(query)

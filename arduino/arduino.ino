@@ -25,15 +25,11 @@ float pressure_calib_b = 0.0;
 float sensor1_calib_b = 8;
 float sensor2_calib_b = 11;
 float flow_calib_a = 510.96;
-
 float volume = 0.0;
-int zeroRadius = 10;
-int zeroCount = 0;
-int zeroTrigger = 20;
-
 
 // Pump pins
 #define PUMP_OUT 3
+#define SOLENOID_OUT 4
 int inspiration_addr = 0;
 int expiration_addr = 1;
 int trigger_addr = 2;
@@ -70,7 +66,10 @@ void setup() {
   pinMode(ADC_DO, INPUT); 
 
   // Set the Pump Pin
-  pinMode(PUMP_OUT, OUTPUT);  
+  pinMode(PUMP_OUT, OUTPUT); 
+  digitalWrite(PUMP_OUT, 0); 
+  pinMode(SOLENOID_OUT, OUTPUT); 
+  digitalWrite(SOLENOID_OUT, 0); 
   readPumpParams();
   if(inspirationTime <= 0 || expirationTime <= 0 || trigger <= 0){
     updateInspirationTime(DEFAULT_INSPIRATION_TIME);
@@ -78,7 +77,6 @@ void setup() {
     updateTrigger(DEFAULT_TRIGGER);
   }
   readPumpParams();
-  digitalWrite(PUMP_OUT, 0);
   Serial.print("inspiration:");
   Serial.println(inspirationTime);
   Serial.print("expiration:");
@@ -215,22 +213,10 @@ float readVolume(){
   // read flow
   float flowVal = float(readFlow());
 
-  // check if we need to reset the volume
-  if(zeroCount > zeroTrigger || flowVal < 0.0){
-    volume = 0;
-    zeroCount = 0;
-  }
-
-  if(flowVal <= zeroRadius && flowVal >= -zeroRadius){
-    // if the flow value is approx 0
-    zeroCount += 1; 
-  }else{
-    // if we have a value
-    zeroCount = 0;  
-  }
-
   // accumulate
-  volume += flowVal*(float(SENSOR_SAMPLE_RATE)/1000.0);
+  if(flowVal >= 0.0){
+    volume += flowVal*(float(SENSOR_SAMPLE_RATE)/1000.0);
+  }
 
   return volume;   
 }
@@ -297,24 +283,37 @@ void loop() {
   counter += 1;
 
   // Run Pump
-  if(counter == (expirationTime*1000)/LOOP_DELAY){
-    digitalWrite(PUMP_OUT, 0);
-  }else if(counter == ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+  if(counter <= (expirationTime*1000)/LOOP_DELAY){
     digitalWrite(PUMP_OUT, 1);
-    counter = 0;    
+    digitalWrite(SOLENOID_OUT, 1);
+    volume = 0;
+  }else if(counter > (expirationTime*1000)/LOOP_DELAY && counter < ((expirationTime*1000)/LOOP_DELAY) + ((inspirationTime*1000)/LOOP_DELAY)){
+    digitalWrite(PUMP_OUT, 0);
+    digitalWrite(SOLENOID_OUT, 0);
+  }else{
+    counter = 0;  
   }
 
   // Read Sensors
   if(counter % (SENSOR_SAMPLE_RATE/LOOP_DELAY) == 0){
 
+    // Pressure
     float pressureVal = float(readPressure());
     Serial.print("pressure:");
     Serial.println(pressureVal, 2);  // 2 decimals
 
-    // Print
+    // Volume
     float volumeVal = float(readVolume());
     Serial.print("volume:");
     Serial.println(volumeVal,2);  
+
+    // Check for trigger
+    if(pressureVal <= -trigger){
+        digitalWrite(PUMP_OUT, 0);
+        digitalWrite(SOLENOID_OUT, 0);     
+        counter = 0;
+        volume = 0;
+    }
   }
 
   // Read Serial
