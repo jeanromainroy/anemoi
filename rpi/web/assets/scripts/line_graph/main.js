@@ -308,8 +308,8 @@ function renderTrends(){
             }else{
 
                 // Stop Alarms
-                mainPanel.style("background-color", 'red');
-                mainBox.style("background-color", 'red');
+                mainPanel.style("background-color", 'white');
+                mainBox.style("background-color", 'white');
                 pauseAudio();
             }            
 
