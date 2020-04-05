@@ -198,7 +198,7 @@ header a:hover{
   top: 32px;
   left: 464px;
   right: 0px;
-  bottom: 64px;
+  bottom: 88px;
   padding: 32px;
   z-index: -1;
   overflow: hidden;
@@ -254,25 +254,22 @@ header a:hover{
 /***** Metrics *****/
 #metrics {
   position: absolute;
-  height: 96px;
+  height: 88px;
   left: 464px;
   right: 0px;
-  bottom: 8px;
+  bottom: 0px;
   z-index: 0;
   overflow: hidden;
   display: flex;
   flex-direction: row;
   text-align: center;
   justify-content: center;
-  background-color: #fff;
 }
 
 #metrics div{
   padding: 0px;
   margin: 0px;
-  z-index: 1;
-  background-color: #fff;
-  padding-top: 8px;
+  padding-top: 0px;
   padding-left: 32px;
   padding-right: 32px;
   margin-left: 48px;

@@ -60,15 +60,14 @@ function renderTrends(){
     }
     
     // Main Graph
-    var metricsHeight = mainBox.node()['clientHeight'];
 	var margin = {
 		top: 32,
 		right: 72,
-		bottom: 72,
+		bottom: 96,
 		left: 72
 	};
 	var width = mainPanel.node()['clientWidth'] - margin.left - margin.right;
-    var height = mainPanel.node()['clientHeight'] - margin.top - margin.bottom - metricsHeight;
+    var height = mainPanel.node()['clientHeight'] - margin.top - margin.bottom;
 
     var graphPadding = 32;
     var graphHeight = Math.round((height - graphPadding)/2.0);
@@ -128,7 +127,7 @@ function renderTrends(){
 	// Axis Labels
 	var xAxisLabel = svg.append("text")
         .attr("class","x-label")
-		.attr("transform", "translate(" + (width/2.0 + margin.left) + "," + (height + margin.bottom + 28) + ")")
+		.attr("transform", "translate(" + (width/2.0 + margin.left) + "," + (height + margin.bottom - 16) + ")")
         .text("");
 
     var yTopAxisLabel = svg.append("text")
@@ -215,6 +214,10 @@ function renderTrends(){
     var minVolume = 0;
     var maxPressure = 0;
     var minPressure = 0;
+    metric1.select("h1").text(0);
+    metric2.select("h1").text(0);
+    metric3.select("h1").text(0);
+    metric4.select("h1").text(0);
 
     function draw(){
 
@@ -269,25 +272,29 @@ function renderTrends(){
             });
 
             // Get Min/Max Value
-            var volumeMinMax = d3.extent(volumeData.map(x => +x[0]));
-            if(minVolume != volumeMinMax[0]){
-                minVolume = volumeMinMax[0];
-                metric1.select("h1").text(minVolume);
+            if(volumeData != null && volumeData.length > 0){
+                var volumeMinMax = d3.extent(volumeData.map(x => +x[0]));
+                if(minVolume != volumeMinMax[0]){
+                    minVolume = volumeMinMax[0];
+                    metric1.select("h1").text(minVolume);
+                }
+                if(maxVolume != volumeMinMax[1]){
+                    maxVolume = volumeMinMax[1];
+                    metric2.select("h1").text(maxVolume);
+                }
             }
-            if(maxVolume != volumeMinMax[1]){
-                maxVolume = volumeMinMax[1];
-                metric2.select("h1").text(maxVolume);
+            if(pressureData != null && pressureData.length > 0){
+                var pressureMinMax = d3.extent(pressureData.map(x => +x[0]));
+                if(minPressure != pressureMinMax[0]){
+                    minPressure = pressureMinMax[0];
+                    metric3.select("h1").text(minPressure);
+                }
+                if(maxPressure != pressureMinMax[1]){
+                    maxPressure = pressureMinMax[1];
+                    metric4.select("h1").text(maxPressure);
+                }
             }
-            var pressureMinMax = d3.extent(pressureData.map(x => +x[0]));
-            if(minPressure != pressureMinMax[0]){
-                minPressure = pressureMinMax[0];
-                metric3.select("h1").text(minPressure);
-            }
-            if(maxPressure != pressureMinMax[1]){
-                maxPressure = pressureMinMax[1];
-                metric4.select("h1").text(maxPressure);
-            }
-            
+                
 
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.abs(now - minLastData);
@@ -295,12 +302,14 @@ function renderTrends(){
                 
                 // Start Alarms
                 mainPanel.style("background-color", 'red');
+                mainBox.style("background-color", 'red');
                 playAudio();
 
             }else{
 
                 // Stop Alarms
-                mainPanel.style("background-color", 'white');
+                mainPanel.style("background-color", 'red');
+                mainBox.style("background-color", 'red');
                 pauseAudio();
             }            
 
