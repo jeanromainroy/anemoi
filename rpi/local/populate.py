@@ -17,12 +17,12 @@ if __name__ == "__main__":
         while(True):
 
             volumeTable.attach()
-            randNumb = random.randint(0,10)
+            randNumb = random.randint(0,1800)
             volumeTable.create(randNumb)
             volumeTable.detach()
 
             pressureTable.attach()
-            randNumb = random.randint(0,3)
+            randNumb = random.randint(0,40)
             pressureTable.create(randNumb)
             pressureTable.detach()
 

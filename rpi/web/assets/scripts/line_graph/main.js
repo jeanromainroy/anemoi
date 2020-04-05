@@ -9,19 +9,29 @@ function timeIt(){
     return;
 }
 
+function getDateNow(){
+    //return new Date(new Date().toLocaleString("en-US", {timeZone: "Atlantic/Reykjavik"})).getTime();
+    return new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"})).getTime();
+}
+
 
 function renderTrends(){
 
     // Get objects
     var mainPanel = d3.select("#main-panel");
     var datavizBox = d3.select("#dataviz");
+    var mainBox = d3.select("#metrics");
+    var metric1 = mainBox.select("#metric1");
+    var metric2 = mainBox.select("#metric2");
+    var metric3 = mainBox.select("#metric3");
+    var metric4 = mainBox.select("#metric4");
 
     // Max acceptable time difference between UI and sensor measurements (in seconds)
     const MAX_TIME_DIFF = 5000; 
     const TIME_WINDOW = 10000;
 
     // Number of points we want to show on the UI (careful if too many points it cant render fast enough)
-    const NBR_OF_POINTS = 50;      // NO MORE THAN 200
+    const NBR_OF_POINTS = 100;      // NO MORE THAN 200
     const REFRESH_RATE = 100;      // in ms
 
     // SQL Date Format
@@ -50,6 +60,7 @@ function renderTrends(){
     }
     
     // Main Graph
+    var metricsHeight = mainBox.node()['clientHeight'];
 	var margin = {
 		top: 32,
 		right: 72,
@@ -57,10 +68,49 @@ function renderTrends(){
 		left: 72
 	};
 	var width = mainPanel.node()['clientWidth'] - margin.left - margin.right;
-    var height = mainPanel.node()['clientHeight'] - margin.top - margin.bottom;
+    var height = mainPanel.node()['clientHeight'] - margin.top - margin.bottom - metricsHeight;
 
     var graphPadding = 32;
     var graphHeight = Math.round((height - graphPadding)/2.0);
+
+    // -----------------------------------------------------------------------
+    // ---------------------------- Metrics Nbrs -----------------------------
+    // -----------------------------------------------------------------------
+    var h1Elem = document.createElement("h1");
+    var pElem = document.createElement("p");
+    var t = document.createTextNode("Min Vol");     // Create a text node
+    pElem.appendChild(t);  
+    var t = document.createTextNode("0");     // Create a text node
+    h1Elem.appendChild(t);  
+    metric1.node().appendChild(pElem);
+    metric1.node().appendChild(h1Elem);
+
+    var h1Elem = document.createElement("h1");
+    var pElem = document.createElement("p");
+    var t = document.createTextNode("Max Vol");     // Create a text node
+    pElem.appendChild(t);  
+    var t = document.createTextNode("0");     // Create a text node
+    h1Elem.appendChild(t);  
+    metric2.node().appendChild(pElem);
+    metric2.node().appendChild(h1Elem);
+
+    var h1Elem = document.createElement("h1");
+    var pElem = document.createElement("p");
+    var t = document.createTextNode("Min Pr");     // Create a text node
+    pElem.appendChild(t);  
+    var t = document.createTextNode("0");     // Create a text node
+    h1Elem.appendChild(t);  
+    metric3.node().appendChild(pElem);
+    metric3.node().appendChild(h1Elem);
+
+    var h1Elem = document.createElement("h1");
+    var pElem = document.createElement("p");
+    var t = document.createTextNode("Max Pr");     // Create a text node
+    pElem.appendChild(t);  
+    var t = document.createTextNode("0");     // Create a text node
+    h1Elem.appendChild(t);  
+    metric4.node().appendChild(pElem);
+    metric4.node().appendChild(h1Elem);
     
 	// -----------------------------------------------------------------------
 	// ------------------------ Objects Creation -----------------------------
@@ -128,7 +178,11 @@ function renderTrends(){
             return !isNaN(d[0]);
         })
         .x(function (d) {
-            return xScale(datetimeParser(d[1]));
+            var xVal = xScale(datetimeParser(d[1]));
+            if(xVal < 0){
+                return null;
+            }
+            return xVal;
         })
         .y(function (d) {
             return yTopScale(d[0]);
@@ -140,7 +194,11 @@ function renderTrends(){
             return !isNaN(d[0]);
         })
         .x(function (d) {
-            return xScale(datetimeParser(d[1]));
+            var xVal = xScale(datetimeParser(d[1]));
+            if(xVal < 0){
+                return null;
+            }
+            return xVal;
         })
         .y(function (d) {
             return yBottomScale(d[0]) + graphHeight + graphPadding;
@@ -150,8 +208,13 @@ function renderTrends(){
     // Runtime Vars
     var lastMaxVolumeId = 1;
     var lastMaxPressureId = 1;
+    var minLastData;
     var volumeData = [];
     var pressureData = [];
+    var maxVolume = 0;
+    var minVolume = 0;
+    var maxPressure = 0;
+    var minPressure = 0;
 
     function draw(){
 
@@ -176,18 +239,18 @@ function renderTrends(){
             }
 
             // Get time now
-            var now = Date.now();
+            var now = getDateNow();
 
             // Get Max time
-            if(newVolumes.length > 0){
+            if(newVolumes.length > 0 && newPressures.length > 0){
                 lastMaxVolumeId = newVolumes[0][2];
-            }
-            if(newPressures.length > 0){
                 lastMaxPressureId = newPressures[0][2];
-            }
-
-            // Get min time
-            var minLastData = Math.min(...[datetimeParser(newPressures[0][1]), datetimeParser(newVolumes[0][1])]);
+                minLastData = Math.min(...[datetimeParser(newPressures[0][1]), datetimeParser(newVolumes[0][1])]);
+            }else if(newVolumes.length > 0){
+                lastMaxVolumeId = newVolumes[0][2];
+            }else if(newPressures.length > 0){
+                lastMaxPressureId = newPressures[0][2];
+            }           
 
             // Inverse list
             newVolumes = newVolumes.reverse();
@@ -199,11 +262,32 @@ function renderTrends(){
 
             // remove elements who are too old
             volumeData = volumeData.filter(function(d){
-                return datetimeParser(d[1]) > now - TIME_WINDOW;
+                return datetimeParser(d[1]) >= now - TIME_WINDOW;
             });
             pressureData = pressureData.filter(function(d){
-                return datetimeParser(d[1]) > now - TIME_WINDOW;
+                return datetimeParser(d[1]) >= now - TIME_WINDOW;
             });
+
+            // Get Min/Max Value
+            var volumeMinMax = d3.extent(volumeData.map(x => +x[0]));
+            if(minVolume != volumeMinMax[0]){
+                minVolume = volumeMinMax[0];
+                metric1.select("h1").text(minVolume);
+            }
+            if(maxVolume != volumeMinMax[1]){
+                maxVolume = volumeMinMax[1];
+                metric2.select("h1").text(maxVolume);
+            }
+            var pressureMinMax = d3.extent(pressureData.map(x => +x[0]));
+            if(minPressure != pressureMinMax[0]){
+                minPressure = pressureMinMax[0];
+                metric3.select("h1").text(minPressure);
+            }
+            if(maxPressure != pressureMinMax[1]){
+                maxPressure = pressureMinMax[1];
+                metric4.select("h1").text(maxPressure);
+            }
+            
 
             // Get the difference between now and the last time measurement
             var diffTimeSeconds = Math.abs(now - minLastData);
@@ -220,8 +304,14 @@ function renderTrends(){
                 pauseAudio();
             }            
 
+            // get max time between Date now and last measurement
+            var maxTime = now;
+            if(minLastData > now){
+                maxTime = minLastData;
+            }
+
             // Update Scales
-            xScale.domain([now - TIME_WINDOW,now]);
+            xScale.domain([maxTime - TIME_WINDOW,maxTime]);
 
             // update axis
             g.select(".xaxis").call(xAxis);

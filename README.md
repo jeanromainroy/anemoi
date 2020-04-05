@@ -405,7 +405,13 @@ To setup Anemoi you need a couple of additional packages & configurations:
 		$$
 		DELIMITER ;
 
-9. Check if works,
+
+9. Make sure the events are saved,
+
+		show events;
+
+
+10. Check if the event scheduler is on,
 
 		show variables where variable_name='event_scheduler';
 
