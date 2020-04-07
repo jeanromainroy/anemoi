@@ -13,7 +13,7 @@ function timeIt(){
 }
 
 function getDateNow(){
-    //return new Date(new Date().toLocaleString("en-US", {timeZone: "Atlantic/Reykjavik"})).getTime();
+    //var now = new Date(new Date().toLocaleString("en-US", {timeZone: "Atlantic/Reykjavik"}));
     var now = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}))
     return now.getTime();
 }
@@ -395,7 +395,7 @@ function renderTrends(){
 
     // Number of points we want to show on the UI (careful if too many points it cant render fast enough)
     const NBR_OF_POINTS = 200;      // NO MORE THAN 200
-    const REFRESH_RATE = 100;      // in ms
+    const REFRESH_RATE = 10;      // in ms
 
     
     // Audio
@@ -573,6 +573,7 @@ function renderTrends(){
     var lastMaxVolumeId = 1;
     var lastMaxPressureId = 1;
     var minLastData;
+    var maxLastData;
     var volumeData = [];
     var pressureData = [];
     var maxVolume = 0;
@@ -616,11 +617,14 @@ function renderTrends(){
                 lastMaxVolumeId = newVolumes[0][2];
                 lastMaxPressureId = newPressures[0][2];
                 minLastData = Math.min(...[datetimeParser(newPressures[0][1]), datetimeParser(newVolumes[0][1])]);
+                maxLastData = Math.max(...[datetimeParser(newPressures[0][1]), datetimeParser(newVolumes[0][1])]);
             }else if(newVolumes.length > 0){
                 lastMaxVolumeId = newVolumes[0][2];
+                maxLastData = datetimeParser(newVolumes[0][1]);
             }else if(newPressures.length > 0){
                 lastMaxPressureId = newPressures[0][2];
-            }           
+                maxLastData = datetimeParser(newPressures[0][1]);
+            }
 
             // Inverse list
             newVolumes = newVolumes.reverse();
@@ -687,7 +691,7 @@ function renderTrends(){
                 volumeData = [];
                 pressureData = [];
 
-            }else if(minLastData % TIME_WINDOW < lastMilliseconds){
+            }else if(maxLastData % TIME_WINDOW < lastMilliseconds-1){
                 // we restarted
 
                 // clear 
