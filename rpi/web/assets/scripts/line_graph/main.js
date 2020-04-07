@@ -716,7 +716,7 @@ function renderTrends(){
                 .attr("stroke", "#ccc")
                 .attr("stroke-width","2px");
                             
-            }else{
+            }else if(volumeData.length > 0){
 
                 // get new milliseconds
                 lastMilliseconds = getMilliseconds(volumeData[volumeData.length-1][1]) % TIME_WINDOW;
