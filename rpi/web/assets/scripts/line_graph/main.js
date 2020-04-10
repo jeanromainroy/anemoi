@@ -362,11 +362,6 @@ function renderTrends(){
                 return getMilliseconds(d[1]) % TIME_WINDOW > now % TIME_WINDOW
             });
 
-
-            // console.log(volumeDataBefore.length)
-            // console.log(volumeDataAfter.length)
-            // console.log(volumeDataBefore.length + volumeDataAfter.length)
-            
             // update line before
             var topPathsGroup = g.selectAll(".top-before")
                 .data([volumeDataBefore]);
